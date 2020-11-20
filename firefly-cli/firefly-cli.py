@@ -1,8 +1,24 @@
+from datetime import datetime
 from cmd import Cmd
 from pprint import pprint
 
 from configs_manager import *
 from api_driver import FireflyAPI
+from io import StringIO
+import pandas as pd
+
+
+def parse_transaction_to_df(input):
+    if isinstance(input, str):
+        cols = ['amount', 'description', 'source_name', 'destination_name', 'category', 'budget']
+        data = pd.read_csv(StringIO(input), header=None)
+
+        # Add remaining columns None
+        data.columns = cols[:data.shape[1]]
+        data = pd.concat([data, pd.DataFrame([[None for _ in cols[data.shape[1]:]]], columns=cols[data.shape[1]:])], axis=1)
+        data.index = [datetime.now()]
+
+        return data
 
 
 class FireflyPrompt(Cmd):
@@ -100,6 +116,30 @@ Type \"help\" to list commands.
 
     def help_budgets(self):
         print('Shows your budgets.')
+
+    def do_add(self, input):
+        try:
+            data = parse_transaction_to_df(input)
+            self.api.create_transaction(data)
+        except:
+            print(f'An error has occurred. Your input is not valid.\nInput: {input}')
+
+
+    def help_add(self):
+        print('''
+Adds a transaction to Firefly in a comma-separated fashion.
+
+Fields are \"Amount, Description, Source account, Destination account, Category, Budget"
+The three first fields can't be omitted.
+Examples:
+    - A simple one:
+        -> `5, Large Mocha, Cash`
+    - One with all the fields being used:
+        -> `5, Large Mocha, Cash, Starbucks, Coffee Category, Food Budget`
+    - You can skip specfic fields by leaving them empty (except the first two):
+        -> `5, Large Mocha, Cash, , , UCO Bank`
+''')
+
 
     def default(self, input):
         if input == 'x' or input == 'q':

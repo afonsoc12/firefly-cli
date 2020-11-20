@@ -29,7 +29,14 @@ class FireflyAPI:
     def _post(self, endpoint, payload):
         """Handles general POST requests."""
 
-        return requests.post("{}{}".format(self.hostname, endpoint), json=payload, headers=self.headers)
+        return requests.post("{}{}".format(self.hostname, endpoint),
+                             json=payload,
+                             # Pass extra headers, or it redirects to login
+                             headers={**self.headers,
+                                      **{'Content-Type': 'application/json',
+                                         'accept': 'application/json'}
+                                      }
+                             )
 
     def _get(self, endpoint, params=None):
         """Handles general GET requests."""
@@ -53,32 +60,45 @@ class FireflyAPI:
 
         return self._get("about/user")
 
-    def create_transaction(self, amount, description, source_account, destination_account=None, category=None,
-                           budget=None):
-        """Creates a new transaction."""
+    def create_transaction(self, data):
+        """Creates a new transaction.
+        data:
+            pd.DataFrame
 
-        now = datetime.datetime.now()
+        `Amount, Description, Source account, Destination account, Category, Budget`
+        Example:
+            - A simple one:
+                -> `5, Large Mocha, Cash`
+            - One with all the fields being used:
+                -> `5, Large Mocha, Cash, Starbucks, Coffee Category, Food Budget`
+            - You can skip specfic fields by leaving them empty (except the first two):
+                -> `5, Large Mocha, Cash, , , UCO Bank`
+        """
+
+        # TODO : Allow DataFrames bigger than 1
+        i = 0
+
         payload = {
             "transactions": [{
                 "type": "withdrawal",
-                "description": description,
-                "date": now.strftime("%Y-%m-%d"),
-                "amount": amount,
-                "budget_name": budget,
-                "category_name": category,
+                "description": data['description'].iloc[0],
+                "date": data.index[i].strftime("%Y-%m-%d"),
+                "amount": float(data['amount'].iloc[0]),
+                "budget_name": data['budget'].iloc[0],
+                "category_name": data['category'].iloc[0],
             }]
         }
-        if source_account.isnumeric():
-            payload["transactions"][0]["source_id"] = source_account
+        if data['source_name'].iloc[0].isnumeric():
+            payload["transactions"][0]["source_id"] = data['source_name'].iloc[0]
         else:
-            payload["transactions"][0]["source_name"] = source_account
+            payload["transactions"][0]["source_name"] = data['source_name'].iloc[0]
 
-        if destination_account:
-            if destination_account.isnumeric():
-                payload["transactions"][0]["destination_id"] = destination_account
+        if data['destination_name'].iloc[0] is not None:
+            if data['destination_name'].iloc[0].isnumeric():
+                payload["transactions"][0]["destination_id"] = data['destination_name'].iloc[0]
             else:
-                payload["transactions"][0]["destination_name"] = destination_account
+                payload["transactions"][0]["destination_name"] = data['destination_name'].iloc[0]
         else:
-            payload["transactions"][0]["destination_name"] = description
+            payload["transactions"][0]["destination_name"] = data['description'].iloc[0]
 
         return self._post(endpoint="transactions", payload=payload)
