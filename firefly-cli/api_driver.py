@@ -14,7 +14,8 @@ class FireflyAPI:
 
     def __init__(self, hostname, auth_token):
         self.headers = {'Authorization': "Bearer " + auth_token if auth_token is not None else ''}
-        self.hostname = hostname if hostname is not None else '' + "/api/v1/"
+        self.hostname = hostname if hostname is None or not hostname.endswith('/') else hostname[:-1]  # Remove trailing backslash
+        self.hostname = self.hostname + '/api/v1/' if hostname is not None else self.hostname
         self.api_test = self._test_api()
 
     def _test_api(self):

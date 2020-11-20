@@ -11,7 +11,7 @@ def load_configs():
         print('File not found, creating the file..')
 
         with open(config_file_path, 'w') as f:
-            configs = {'URL': None, 'URL_TOKEN': None}
+            configs = {'URL': None, 'API_TOKEN': None}
             save_configs_to_file(configs)
     return configs
 

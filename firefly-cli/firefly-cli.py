@@ -2,13 +2,13 @@ from cmd import Cmd
 from pprint import pprint
 
 from configs_manager import *
-from firefly import Firefly
+from api_driver import FireflyAPI
 
 
 class FireflyPrompt(Cmd):
     prompt = '🐷 ➜ '
     configs = load_configs()
-    api = Firefly(configs['URL'], configs['API_TOKEN'])
+    api = FireflyAPI(configs['URL'], configs['API_TOKEN'])
 
     is_url_set = True if configs['URL'] is not None else False
     is_api_token_set = True if configs['API_TOKEN'] is not None else False
@@ -36,14 +36,16 @@ Created by Afonso Costa (@afonsoc12)
 {}
 Type \"help\" to list commands.
     '''.format(configs['URL'] if is_url_set else '(not set)',
-               configs['API_TOKEN'] if is_api_token_set else '(not set)',
+               '*****' + configs['API_TOKEN'][-5:] if is_api_token_set else '(not set)',
                'OK!' if api.api_test else 'No connection!',
                opt_text)
 
 
     @classmethod
     def refresh_api(cls):
-        cls.api = Firefly(cls.configs['URL'], cls.configs['API_TOKEN'])
+        cls.configs = load_configs()
+        cls.api = FireflyAPI(cls.configs['URL'], cls.configs['API_TOKEN'])
+        print('API refreshed. Current Status: {}'.format('OK!' if cls.api.api_test else 'No connection!'))
 
     def do_exit(self, input):
         print('Bye! Come store new transactions soon!')
@@ -52,12 +54,18 @@ Type \"help\" to list commands.
     def help_exit(self):
         print('exit the application. Shorthand: x q Ctrl-D.')
 
+    def do_refresh(self, input):
+        FireflyPrompt.refresh_api()
+
+    def help_refresh(self):
+        print('Refreshes API connection')
+
     def do_edit(self, input):
         input_split = input.split(' ')
         if len(input_split) != 2:
             print(f'The command \"edit\" takes exactly two arguments. Provided: {input}')
         else:
-            if input_split[0] == 'URL' or input_split == 'API_TOKEN':
+            if input_split[0] == 'URL' or input_split[0] == 'API_TOKEN':
                 self.configs[input_split[0]] = input_split[1]
                 save_configs_to_file(self.configs)
                 FireflyPrompt.refresh_api()
@@ -77,12 +85,21 @@ Type \"help\" to list commands.
     def help_edit(self):
         print('Shows your available budgets.')
 
+    def do_accounts(self, input):
+        # TODO: Implement with pagination based
+        budgets = self.api.get_budgets()
+        pprint(budgets)
+
+    def help_accounts(self):
+        print('Shows your accounts.')
+
     def do_budgets(self, input):
-        budgets = api.get_budgets()
+        # TODO: Implement with pagination based
+        budgets = self.api.get_budgets()
         pprint(budgets)
 
     def help_budgets(self):
-        print('Shows your available budgets.')
+        print('Shows your budgets.')
 
     def default(self, input):
         if input == 'x' or input == 'q':
@@ -92,28 +109,6 @@ Type \"help\" to list commands.
 
     do_EOF = do_exit
     help_EOF = help_exit
-
-
-def load_configs():
-    try:
-        with open(config_file_path, 'r') as f:
-            configs = json.loads(f.read())
-    except FileNotFoundError:
-        print('File not found, creating the file..')
-
-        with open(config_file_path, 'w') as f:
-            configs = {'URL': None, 'URL_TOKEN': None}
-            save_configs_to_file(configs)
-    return configs
-
-
-def save_configs_to_file(configs):
-    try:
-        with open(config_file_path, 'w') as f:
-            json.dump(configs, f)
-            print('Config file saved at {}'.format(str(config_file_path)))
-    except:
-        print('An error has occurred while saving file to {}'.format(str(config_file_path)))
 
 
 if __name__ == '__main__':
