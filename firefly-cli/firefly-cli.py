@@ -40,6 +40,8 @@ class FireflyPrompt(Cmd):
             opt_text += 'It appears that you have not set your URL yet.\nType \"edit URL <URL>\" to do so.'
         elif not (is_url_set and is_api_token_set):
             opt_text += 'It appears that you have not set neither of your URL or API token yet.\nType \"edit URL <URL>\" or \"edit API_TOKEN <TOKEN>\" to do so.'
+    else:
+        opt_text += '\n'
 
 
     intro = '''
@@ -56,7 +58,6 @@ Created by Afonso Costa (@afonsoc12)
   - URL: {}
   - API Token: {}
   - Connection: {}
-  
 {}
 Type \"help\" to list commands.
     '''.format(configs['URL'] if is_url_set else '(not set)',
