@@ -18,6 +18,8 @@ def parse_transaction_to_df(input):
         data = pd.concat([data, pd.DataFrame([[None for _ in cols[data.shape[1]:]]], columns=cols[data.shape[1]:])], axis=1)
         data.index = [datetime.now()]
 
+        # Convert all to string and strip edges
+        data = data.astype(str).apply(lambda x: x.str.strip())
         return data
 
 
