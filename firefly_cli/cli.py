@@ -2,11 +2,10 @@ from datetime import datetime
 from cmd import Cmd
 from pprint import pprint
 
-from configs_manager import *
-from api_driver import FireflyAPI
+from .configs_manager import *
+from .api_driver import FireflyAPI
 from io import StringIO
 import pandas as pd
-
 
 def parse_transaction_to_df(input):
     if isinstance(input, str):
@@ -180,10 +179,10 @@ Examples:
     help_EOF = help_exit
 
 
-if __name__ == '__main__':
-    import sys
-
-    if len(sys.argv) > 1:
-        FireflyPrompt().onecmd(' '.join(sys.argv[1:]))
-    else:
-        FireflyPrompt().cmdloop()
+#if __name__ == '__main__':
+#    import sys
+#
+#    if len(sys.argv) > 1:
+#        FireflyPrompt().onecmd(' '.join(sys.argv[1:]))
+#    else:
+#        FireflyPrompt().cmdloop()

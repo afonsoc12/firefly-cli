@@ -2,7 +2,7 @@
 
 # Firefly III Command Line Interface
 
-A python-based command line interface for entering expenses practically.
+A python-based command line interface for practically entering expenses in Firefly III.
 
 ---
 # Instalation
