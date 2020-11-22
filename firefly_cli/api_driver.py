@@ -29,7 +29,7 @@ class FireflyAPI:
     def _post(self, endpoint, payload):
         """Handles general POST requests."""
 
-        return requests.post("{}{}".format(self.hostname, endpoint),
+        response = requests.post("{}{}".format(self.hostname, endpoint),
                              json=payload,
                              # Pass extra headers, or it redirects to login
                              headers={**self.headers,
@@ -38,11 +38,15 @@ class FireflyAPI:
                                       }
                              )
 
+        return response
+
     def _get(self, endpoint, params=None):
         """Handles general GET requests."""
 
-        response = requests.get("{}{}".format(
-            self.hostname, endpoint), params=params, headers=self.headers)
+        response = requests.get("{}{}".format(self.hostname, endpoint),
+                                params=params,
+                                headers=self.headers)
+
         return response.json()
 
     def get_budgets(self):

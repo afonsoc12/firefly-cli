@@ -3,6 +3,8 @@ from datetime import datetime
 from cmd import Cmd
 from pprint import pprint
 
+from tabulate import tabulate
+
 from .configs_manager import *
 from .api_driver import FireflyAPI
 from io import StringIO
@@ -149,7 +151,24 @@ limitations under the License.
     def do_add(self, input):
         try:
             data = parse_transaction_to_df(input)
-            self.api.create_transaction(data)
+            response = self.api.create_transaction(data)
+            if response.status_code == 200:
+                print(f'Transaction {input} successfully added!')
+                print('Interpreted as:')
+                print(tabulate(data, headers='keys', tablefmt='psql'))
+            elif response.status_code == 422:
+                print(f'The data provided is not valid! Transaction: {input}')
+                print('Interpreted as:')
+                print(tabulate(data, headers='keys', tablefmt='psql'))
+                msg = response.json()['message']
+                errors = response.json()['errors']
+                print(f'\nMessage: {msg}')
+                print('Errors:')
+                for e in errors:
+                    e_line = '; '.join(errors[e])
+                    print(f'\t- {e}: {e_line}')
+
+
         except Exception:
             print(f'An error has occurred.')
             traceback.print_exc()
@@ -158,8 +177,10 @@ limitations under the License.
         print('''
 Adds a transaction to Firefly in a comma-separated fashion.
 
-Fields are \"Amount, Description, Source account, Destination account, Category, Budget"
+Fields are: 
+{}
 The three first fields can't be omitted.
+
 Examples:
     - A simple one:
         -> `5, Large Mocha, Cash`
@@ -167,7 +188,7 @@ Examples:
         -> `5, Large Mocha, Cash, Starbucks, Coffee Category, Food Budget`
     - You can skip specfic fields by leaving them empty (except the first two):
         -> `5, Large Mocha, Cash, , , UCO Bank`
-''')
+'''.format(tabulate([['Amount', 'Description', 'Source account', 'Destination account', 'Category', 'Budget']], tablefmt='psql')))
 
 
     def default(self, input):
