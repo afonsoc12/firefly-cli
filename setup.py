@@ -13,6 +13,10 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/afonsoc12/firefly-cli",
     packages=setuptools.find_packages(),
+    install_requires=[
+        'pandas==1.1.4',
+        'requests==2.25.0'
+    ],
     entry_points = {
         'console_scripts': [
             'firefly-cli = firefly_cli.__main__:main'
@@ -24,5 +28,5 @@ setuptools.setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
-    #python_requires='3',
+    python_requires='3',
 )

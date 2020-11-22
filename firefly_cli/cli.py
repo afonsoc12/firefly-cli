@@ -1,3 +1,4 @@
+import traceback
 from datetime import datetime
 from cmd import Cmd
 from pprint import pprint
@@ -18,7 +19,7 @@ def parse_transaction_to_df(input):
         data.index = [datetime.now()]
 
         # Convert all to string and strip edges
-        data = data.astype(str).apply(lambda x: x.str.strip())
+        data = data.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         return data
 
 
@@ -39,8 +40,8 @@ class FireflyPrompt(Cmd):
             opt_text += 'It appears that you have not set your URL yet.\nType \"edit URL <URL>\" to do so.'
         elif not (is_url_set and is_api_token_set):
             opt_text += 'It appears that you have not set neither of your URL or API token yet.\nType \"edit URL <URL>\" or \"edit API_TOKEN <TOKEN>\" to do so.'
-    else:
-        opt_text += '\n'
+    #else:
+    #    opt_text += '\n'
 
 
     intro = '''
@@ -149,9 +150,9 @@ limitations under the License.
         try:
             data = parse_transaction_to_df(input)
             self.api.create_transaction(data)
-        except:
-            print(f'An error has occurred. Your input is not valid.\nInput: {input}')
-
+        except Exception:
+            print(f'An error has occurred.')
+            traceback.print_exc()
 
     def help_add(self):
         print('''
