@@ -5,9 +5,8 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="firefly-cli",
-    version="0.0.2",
+    version="0.0.3",
     author="Afonso Costa",
-    #author_email="author@example.com",
     description="A python-based command line interface for practically entering expenses in Firefly III",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -16,7 +15,7 @@ setuptools.setup(
     install_requires=[
         'pandas==1.1.4',
         'requests==2.25.0',
-        'tabulate-0.8.7'
+        'tabulate==0.8.7'
     ],
     entry_points = {
         'console_scripts': [
