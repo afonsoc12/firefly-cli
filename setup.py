@@ -15,7 +15,8 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         'pandas==1.1.4',
-        'requests==2.25.0'
+        'requests==2.25.0',
+        'tabulate-0.8.7'
     ],
     entry_points = {
         'console_scripts': [
