@@ -28,10 +28,12 @@ def parse_transaction_to_df(input):
 class FireflyPrompt(Cmd):
     prompt = '🐷 ➜ '
     configs = load_configs()
-    api = FireflyAPI(configs['URL'], configs['API_TOKEN'])
+    api = FireflyAPI(configs['API'].get('URL'),
+                     configs['API'].get('API_TOKEN')
+                     )
 
-    is_url_set = True if configs['URL'] is not None else False
-    is_api_token_set = True if configs['API_TOKEN'] is not None else False
+    is_url_set = True if configs['API'].get('URL') is not None else False
+    is_api_token_set = True if configs['API'].get('API_TOKEN') is not None else False
 
     # Display information to update URL or API token, if not already set
     opt_text = ''
@@ -62,8 +64,8 @@ Created by Afonso Costa (@afonsoc12)
   - Connection: {}
 {}
 Type \"help\" to list commands.
-    '''.format(configs['URL'] if is_url_set else '(not set)',
-               '*****' + configs['API_TOKEN'][-5:] if is_api_token_set else '(not set)',
+    '''.format(configs['API']['URL'] if is_url_set else '(not set)',
+               '*****' + configs['API']['API_TOKEN'][-5:] if is_api_token_set else '(not set)',
                'OK!' if api.api_test else 'No connection!',
                opt_text)
 
@@ -71,7 +73,7 @@ Type \"help\" to list commands.
     @classmethod
     def refresh_api(cls):
         cls.configs = load_configs()
-        cls.api = FireflyAPI(cls.configs['URL'], cls.configs['API_TOKEN'])
+        cls.api = FireflyAPI(cls.configs['API']['URL'], cls.configs['API']['API_TOKEN'])
         print('API refreshed. Current Status: {}'.format('OK!' if cls.api.api_test else 'No connection!'))
 
     def do_exit(self, input):
@@ -113,7 +115,7 @@ limitations under the License.
             print(f'The command \"edit\" takes exactly two arguments. Provided: {input}')
         else:
             if input_split[0] == 'URL' or input_split[0] == 'API_TOKEN':
-                self.configs[input_split[0]] = input_split[1]
+                self.configs['API'][input_split[0]] = input_split[1]
                 save_configs_to_file(self.configs)
                 FireflyPrompt.refresh_api()
             else:
@@ -121,10 +123,10 @@ limitations under the License.
 
     def complete_edit(self, text, line, begidx, endidx):
         if not text:
-            completions = self.configs.keys()
+            completions = self.configs['API'].keys()
         else:
             completions = [f
-                           for f in self.configs.keys()
+                           for f in self.configs['API'].keys()
                            if f.startswith(text)
                            ]
         return completions
@@ -134,8 +136,8 @@ limitations under the License.
 
     def do_accounts(self, input):
         # TODO: Implement with pagination based
-        budgets = self.api.get_budgets()
-        pprint(budgets)
+        accounts = self.api.get_accounts()
+        pprint(accounts)
 
     def help_accounts(self):
         print('Shows your accounts.')
