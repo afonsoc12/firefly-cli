@@ -66,7 +66,7 @@ Type "help" to list commands.
 
 # Setup
 If you run firefly-cli, you will see that you do not have connection.
-In order to configure your Firefly III `URL` and `API_TOKEN` you have to run these two commands:
+In order to configure your Firefly III `URL` and `API_TOKEN` you have to run these two commands (you can find [here](https://docs.firefly-iii.org/firefly-iii/api/#personal-access-token) how to find your API Personal Access Token):
 
 ```shell
 # Start CLI, well this one does not count as a command 🙃
@@ -83,6 +83,14 @@ After entering these values, firefly-cli will automatically refresh API connecti
 ```shell
 # Refreshes API connection
 refresh
+```
+
+Alternatively, you can create a `firefly-cli.ini` file and place it in `$HOME/.firefly-cli/firefly-cli.ini` with the following content:
+```yaml
+[API]
+url = https://firefly.yourdomain.com
+api_token = eyXXX
+
 ```
 
 # Commands
@@ -114,13 +122,17 @@ The first three fields can't be omitted.
 
 **Examples:**
 - A simple one:
-
-  - `🐷 ➜ add 5, Large Mocha, Cash`
+  ```shell
+  🐷 ➜ add 5, Large Mocha, Cash
+  ```
 
 - One with all the fields being used:
- 
-  - `🐷 ➜ add 5, Large Mocha, Cash, Starbucks, Coffee Category, Food Budget`
+  ```shell
+  🐷 ➜ add 5, Large Mocha, Cash, Starbucks, Coffee Category, Food Budget
+  ```
 
 - You can skip specfic fields by leaving them empty (except the first two):
-  - `🐷 ➜ add 5, Large Mocha, Cash, , , UCO Bank` 
+  ```shell
+  🐷 ➜ add 5, Large Mocha, Cash, , , UCO Bank
+  ``` 
 
