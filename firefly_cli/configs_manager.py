@@ -1,7 +1,8 @@
 from pathlib import Path
 import configparser
+from xdg import xdg_config_home
 
-config_file_path = Path.home().joinpath('.firefly-cli', 'firefly-cli.ini')
+config_file_path = xdg_config_home().joinpath('firefly-cli', 'firefly-cli.ini')
 
 # Create dir if not exists
 config_file_path.parents[0].mkdir(parents=True, exist_ok=True)

@@ -15,9 +15,10 @@ setuptools.setup(
     install_requires=[
         'pandas==1.1.4',
         'requests==2.25.0',
-        'tabulate==0.8.7'
+        'tabulate==0.8.7',
+        'xdg==5.0.1',
     ],
-    entry_points = {
+    entry_points={
         'console_scripts': [
             'firefly-cli = firefly_cli.__main__:main'
         ]

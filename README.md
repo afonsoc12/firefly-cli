@@ -85,13 +85,13 @@ After entering these values, firefly-cli will automatically refresh API connecti
 refresh
 ```
 
-Alternatively, you can create a `firefly-cli.ini` file and place it in `$HOME/.firefly-cli/firefly-cli.ini` with the following content:
+Alternatively, you can create a `firefly-cli.ini` file and place it in `$XDG_CONFIG_HOME/firefly-cli/firefly-cli.ini` with the following content:
 ```yaml
 [API]
 url = https://firefly.yourdomain.com
 api_token = eyXXX
-
 ```
+**Note:** If `$XDG_CONFIG_HOME` is not set, it defaults to `$HOME/.config/firefly-cli/firefly-cli.ini`
 
 # Commands
 The scope of this CLI is to enter expenses in a comma-separated style. Therefore, some commands do not have a "very polished" UI for the moment. I am looking forward to improve this soon!
