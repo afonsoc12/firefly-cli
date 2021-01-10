@@ -2,6 +2,8 @@ language: python
 python:
   - "3.7"
 
+if: branch = master AND tag = true
+
 cache:
   directories:
     - $HOME/.cache/pip
