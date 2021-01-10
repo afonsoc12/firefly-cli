@@ -3,6 +3,7 @@
 # Firefly III Command Line Interface
 [![PyPi Version](https://img.shields.io/pypi/v/firefly-cli.svg)](https://pypi.org/project/firefly-cli/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Build Status](https://travis-ci.com/afonsoc12/firefly-cli.svg?branch=main)](https://travis-ci.com/afonsoc12/firefly-cli)
 
 A python-based command line interface for practically entering expenses in [Firefly III](https://www.firefly-iii.org).
 
