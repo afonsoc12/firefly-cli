@@ -1,11 +1,12 @@
 import setuptools
+import versioneer
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name="firefly-cli",
-    version="0.0.3",
+    version=versioneer.get_version(),
     author="Afonso Costa",
     description="A python-based command line interface for practically entering expenses in Firefly III",
     long_description=long_description,
