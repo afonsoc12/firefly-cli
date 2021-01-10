@@ -2,7 +2,7 @@ language: python
 python:
   - "3.7"
 
-#if: branch = main
+if: branch = main AND tag = true
 
 cache:
   directories:
@@ -26,7 +26,7 @@ deploy:
     password:
           secure: "VC6vvzTxt3v1Cb3CoVgUg0u+FSRvohFyNPI8jDn38hwe9VC96eBLV/3QaTYQ/3CwUo/j6RarszsNKaEHY7x25NPq8UsMZEcfSh0fDY6dKSs/aat0d8UwEL3ZVZfp5y8KTf7F1/KQdD+RdfGNYRF8EHFCYQy2/w8XyaEfoTeWuFlSRvJriSK5OWfcgEbr62Es55hnINN9Hb1jY1zUlqm7o7EBlMf6kKjs5aPrONQ0IW1daS1BvZK2pskZRjQFprMJSS/WgDYah55VEwc2wbjjGsqw7LmEMBAdYeZtdLKUfYdf5n+Ic6cy2hmjBd3U2ip8JVjayHyuCJuZtaHEmR1xdnt2mdFiMHNqzG8TZlD7LXno1jJfuHNd8ZbD/XRu1XZYeZ00tvaVBbTAOj5PvYa6xm8vrg/PoZM2UIhaAmApNXXFhAkIWHqxv5KYqlSKytOlOcaDIjg9o3yyUcHAJeN46IlYYekOno1kR+3QkV0jysoAey2e05yxfDf1/ONKdNhTDRba8UtLCbpWnHKG7Vc0156AevIp6ChNgQMNiPi0+OvX7tVkVCN82/Dj/qkM8Q4O0wP0l8WAMCWkSHNuvfeiOGH8KO/UjLWMM8sNKy/zrQgyHne14KrMzvIYSH5xuBMcfRvdXSXeZwG/skaDJp8DFiSSKlqbcMXM/c10UbVzLrA="
     on:
-      branch: master
+      branch: main
       tags: true
   
   - provider: releases
@@ -36,7 +36,7 @@ deploy:
     file: firefly*.whl
     skip_cleanup: true
     on:
-      branch: master
+      branch: main
       tags: true
 
 notifications:
