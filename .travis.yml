@@ -2,7 +2,7 @@ language: python
 python:
   - "3.7"
 
-if: branch = main AND tag = true
+#if: branch = main AND tag = true
 
 cache:
   directories:
