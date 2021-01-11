@@ -31,4 +31,6 @@ All notable changes to this project will be documented in this file.
 
 ## v0.0.3 (2020-11-22)
 
+### Added
+
 - First release of firefly-cli!
