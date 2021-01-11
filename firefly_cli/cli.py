@@ -4,7 +4,7 @@ from cmd import Cmd
 from pprint import pprint
 
 from tabulate import tabulate
-
+from ._version import get_versions
 from .configs_manager import *
 from .api_driver import FireflyAPI
 from io import StringIO
@@ -62,11 +62,13 @@ Created by Afonso Costa (@afonsoc12)
   - URL: {}
   - API Token: {}
   - Connection: {}
+  - Version: {}
 {}
 Type \"help\" to list commands.
     '''.format(configs['API']['URL'] if is_url_set else '(not set)',
                '*****' + configs['API']['API_TOKEN'][-5:] if is_api_token_set else '(not set)',
                'OK!' if api.api_test else 'No connection!',
+               get_versions()['version'],
                opt_text)
 
 
