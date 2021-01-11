@@ -2,7 +2,7 @@ language: python
 python:
   - "3.7"
 
-if: branch = main AND tag = true
+if: tag IS present
 
 cache:
   directories:
@@ -21,6 +21,8 @@ before_deploy: echo "========== DEPLOYING =========="
 
 deploy:
   - provider: pypi
+    edge: true
+    remove_build_dir: false
     distributions: "sdist bdist_wheel"
     username: "__token__"
     password:
@@ -33,7 +35,7 @@ deploy:
     api_key:
       secure: "GwI9rJlZieHsjHt3yUYR4j5F+kKflY7SVcHnDYHy2OqR4nzhz7BqPLSAxwoJKxJIzV5VdPMfG6N3MrIrGNdUraTIyeZAQlWajypPpGBm0YcJLZEgRVMDIsrzmUuUap4bBlnNB7BBXfy7Aapa2qP4Pt6tv1h6Cx6bn/KliAwn8MxYEzgCg4Fp8V/6WMuyDbu0VBfvQ9JqceBC1kvyrIu58/LurIZ+hzlStvmZ9DB1nzyXPT7OOkvOZ8zhAf0n6ySE14sKb8oELQUl6GoFhYmTVdwL0H9oWfrS1fj5xLDaFt7U0SDxAvrLvkYZOVyHiTwBaJr5M7D9Z0z53CLEmZ0PpH1zHY467D6XTF9c0C4l+UV22AvenNkoLCad6Fq3lpFZQwrDrDByvXoKmHmJogmodDgZbH9wDIq73dEHt28I4I1v1jYQyouYX5CH1VGd/KfTNzAd03bzS4SfoCvGLeZCHfDpWra//pXdDFggO7VuprusiJZVmOq5TFnAnxVOPRlFzIwIgX4J3JQMF4tVHpdVHt/Bonn3NIQUbvQYbkymAZ4Uz3sur9n2lvj+kAvkxuta+nRaL3h/RVpa2dW4pq4CiAELbk0AmivyvvSucnnJzwSv0Hh80upvK/IDcrv63Nc8bo2yrOPetXUD8ML+ctFqHt/FsgKcXAWFNxgVWYBMQqY="
     file_glob: true
-    file: dist/firefly*.whl
+    file: dist/firefly*
     skip_cleanup: true
     on:
       branch: main

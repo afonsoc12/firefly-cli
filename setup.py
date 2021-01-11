@@ -7,6 +7,7 @@ with open("README.md", "r") as fh:
 setuptools.setup(
     name="firefly-cli",
     version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     author="Afonso Costa",
     description="A python-based command line interface for practically entering expenses in Firefly III",
     long_description=long_description,
