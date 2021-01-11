@@ -15,10 +15,10 @@ setuptools.setup(
     url="https://github.com/afonsoc12/firefly-cli",
     packages=setuptools.find_packages(),
     install_requires=[
-        'pandas==1.1.4',
-        'requests==2.25.0',
-        'tabulate==0.8.7',
-        'xdg==5.0.1',
+        'pandas>=1.1.4',
+        'requests>=2.25.0',
+        'tabulate>=0.8.7',
+        'xdg>=5.0.1',
     ],
     entry_points={
         'console_scripts': [

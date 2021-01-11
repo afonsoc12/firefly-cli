@@ -42,7 +42,7 @@ def get_config():
     cfg.VCS = "git"
     cfg.style = "pep440"
     cfg.tag_prefix = "v"
-    cfg.parentdir_prefix = "firefly_cli"
+    cfg.parentdir_prefix = "firefly-cli-v"
     cfg.versionfile_source = "firefly_cli/_version.py"
     cfg.verbose = False
     return cfg
