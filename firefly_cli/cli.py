@@ -1,36 +1,21 @@
+import json
 import traceback
-from datetime import datetime
+from datetime import date
 from cmd import Cmd
 
 from tabulate import tabulate
+from .utils import parse_transaction_to_df
 from ._version import get_versions
-from .configs_manager import *
-from .api_driver import FireflyAPI
-from io import StringIO
-import json
-import pandas as pd
+from .configs import *
+from .api import FireflyAPI
 
-def parse_transaction_to_df(input):
-    if isinstance(input, str):
-        cols = ['amount', 'description', 'source_name', 'destination_name', 'category', 'budget']
-        data = pd.read_csv(StringIO(input), header=None)
-
-        # Add remaining columns None
-        data.columns = cols[:data.shape[1]]
-        data = pd.concat([data, pd.DataFrame([[None for _ in cols[data.shape[1]:]]], columns=cols[data.shape[1]:])], axis=1)
-        data.index = [datetime.now()]
-
-        # Convert all to string and strip edges
-        data = data.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-        return data
 
 
 class FireflyPrompt(Cmd):
     prompt = '🐷 ➜ '
     configs = load_configs()
     api = FireflyAPI(configs['API'].get('URL'),
-                     configs['API'].get('API_TOKEN')
-                     )
+                     configs['API'].get('API_TOKEN'))
 
     is_url_set = True if configs['API'].get('URL') is not None else False
     is_api_token_set = True if configs['API'].get('API_TOKEN') is not None else False
@@ -49,7 +34,7 @@ class FireflyPrompt(Cmd):
 
 
     intro = '''
-Copyright 2020 Afonso Costa
+Copyright {} Afonso Costa
 
 Licensed under the Apache License, Version 2.0 (the "License");
 Type \"license\" for more information.
@@ -65,7 +50,8 @@ Created by Afonso Costa (@afonsoc12)
   - Version: {}
 {}
 Type \"help\" to list commands.
-    '''.format(configs['API']['URL'] if is_url_set else '(not set)',
+    '''.format(date.today().year,
+               configs['API']['URL'] if is_url_set else '(not set)',
                '*****' + configs['API']['API_TOKEN'][-5:] if is_api_token_set else '(not set)',
                'OK!' if api.api_test else 'No connection!',
                get_versions()['version'],
