@@ -10,7 +10,6 @@ from .configs import *
 from .api import FireflyAPI
 
 
-
 class FireflyPrompt(Cmd):
     prompt = '🐷 ➜ '
     configs = load_configs()
@@ -96,6 +95,23 @@ limitations under the License.
 
     def help_refresh(self):
         print('Refreshes API connection')
+
+    def do_status(self, input):
+        status_str = '''
+===== Status =====
+  - URL: {}
+  - API Token: {}
+  - Connection: {}
+  - Version: {}
+  '''.format(self.configs['API']['URL'] if self.is_url_set else '(not set)',
+                          '*****' + self.configs['API']['API_TOKEN'][-5:] if self.is_api_token_set else '(not set)',
+                          'OK!' if self.api.api_test else 'No connection!',
+                          get_versions()['version'])
+
+        print(status_str)
+
+    def help_status(self):
+        print('Shows the current connection status')
 
     def do_edit(self, input):
         input_split = input.split(' ')
