@@ -1,13 +1,13 @@
 import traceback
 from datetime import datetime
 from cmd import Cmd
-from pprint import pprint
 
 from tabulate import tabulate
 from ._version import get_versions
 from .configs_manager import *
 from .api_driver import FireflyAPI
 from io import StringIO
+import json
 import pandas as pd
 
 def parse_transaction_to_df(input):
@@ -139,7 +139,7 @@ limitations under the License.
     def do_accounts(self, input):
         # TODO: Implement with pagination based
         accounts = self.api.get_accounts()
-        pprint(accounts)
+        print(json.dumps(accounts, sort_keys=True, indent=4))
 
     def help_accounts(self):
         print('Shows your accounts.')
@@ -147,7 +147,7 @@ limitations under the License.
     def do_budgets(self, input):
         # TODO: Implement with pagination based
         budgets = self.api.get_budgets()
-        pprint(budgets)
+        print(json.dumps(budgets, sort_keys=True, indent=4))
 
     def help_budgets(self):
         print('Shows your budgets.')
