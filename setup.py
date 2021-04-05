@@ -18,7 +18,7 @@ setuptools.setup(
         'pandas==1.1.4',
         'requests==2.25.1',
         'tabulate==0.8.7',
-        'pyxdg==0.26',
+        'pyxdg==0.26'
     ],
     entry_points={
         'console_scripts': [
