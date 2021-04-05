@@ -20,6 +20,7 @@ def parse_transaction_to_df(input):
         data = data.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
         return data
 
+
 def parse_csv_to_df(file):
     """Parses a .csv file to dataframe.
 

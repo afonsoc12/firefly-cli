@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.0.10 (2021-04-05)
+
+### Changed
+- CI migrated from TravisCI to Github Actions
+- Housekeeping
+
 ## v0.0.9 (2021-01-11)
 
 ### Changed
