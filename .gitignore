@@ -1,6 +1,9 @@
 # Flake 8
 .flake8
 
+# Ignore TravisCI after change to Github actions
+.travis.yml
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
