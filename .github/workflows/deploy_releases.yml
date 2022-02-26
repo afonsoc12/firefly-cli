@@ -1,13 +1,41 @@
-name: CI releases
+name: Test and deploys releases
 
 on:
   push:
-    tags:
-      - 'v*'
+    tags: 'v*'
 
 jobs:
+  pytest:
+    uses: ./.github/workflows/unit_testing.yml
+
+  release:
+    name: "Tagged Release"
+    needs:
+      - pytest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - name: Get version from versioneer
+        run: |
+          VER=$(echo $(python -c "import versioneer; print(versioneer.get_versions()['version'].replace('+', '-'))"))
+          echo "VERSION=$VER" >> $GITHUB_ENV
+      - name: Create Github release
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          title: "v${{ env.VERSION }}"
+          files: |
+            LICENSE
+            dist/firefly*
+
   pypi:
-    name: Builds python distribution, publishes to PyPI
+    name: Deploy to PyPI
+    needs:
+      - pytest
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -20,28 +48,24 @@ jobs:
           echo "VERSION=$VER" >> $GITHUB_ENV
       - name: Install pypa/build and build a binary wheel and a source tarball
         run: |
+          python -m pip install --upgrade pip
           python -m pip install build --user
           python -m build --sdist --wheel --outdir dist/ .
       - name: Publish distribution 📦 to PyPI
         uses: pypa/gh-action-pypi-publish@master
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
-      - name: Create Github release
-        uses: marvinpinto/action-automatic-releases@latest
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: false
-          title: "v${{ env.VERSION }}"
-          files: |
-            LICENSE
-            dist/firefly*
 
 #  docker:
-#    name: Builds docker image and pushes to Docker Hub
+#    name: Deploy to Docker Hub (latest)
+#    needs:
+#      - pytest
 #    runs-on: ubuntu-latest
 #    steps:
 #      - name: Checkout
 #        uses: actions/checkout@v2
+#        with:
+#          fetch-depth: '0'
 #      - name: Get version from versioneer
 #        run: |
 #          VER=$(echo $(python -c "import versioneer; print(versioneer.get_versions()['version'].replace('+', '-'))"))
@@ -67,7 +91,7 @@ jobs:
 #          context: .
 #          file: Dockerfile
 #          build-args: |
-#            VERSION=v${{ env.VERSION }}
+#            VERSION=${{ env.VERSION }}
 #          no-cache: true
 #          platforms: linux/amd64,linux/arm64
 #          push: true
@@ -76,3 +100,9 @@ jobs:
 #            afonsoc12/firefly-cli:v${{ env.VERSION }}
 #            ghcr.io/afonsoc12/firefly-cli:latest
 #            ghcr.io/afonsoc12/firefly-cli:v${{ env.VERSION }}
+
+#  dummy:
+#    name: Dummy step
+#    runs-on: ubuntu-latest
+#    steps:
+#      - uses: actions/checkout@latest
