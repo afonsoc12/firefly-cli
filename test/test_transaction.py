@@ -2,12 +2,12 @@ from datetime import datetime
 
 import pytest
 
-import parsers
+from firefly_cli.parsers import get_add_parser
 from firefly_cli.transaction import Transaction
 
 
 class TestTransaction:
-    parser = parsers.get_add_parser()
+    parser = get_add_parser()
 
     @pytest.mark.parametrize(
         "fields, fields_missing",
