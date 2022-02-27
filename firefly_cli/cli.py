@@ -2,10 +2,10 @@ import json
 from datetime import date
 
 import cmd2
-from tabulate import tabulate
 
 from ._version import get_versions
 from .api import FireflyAPI
+from .bcolors import bcolors
 from .configs import *
 from .parsers import get_add_parser
 from .transaction import Transaction
@@ -29,11 +29,11 @@ class FireflyPrompt(cmd2.Cmd):
     opt_text = ""
     if not (is_url_set and is_api_token_set):
         if is_url_set and not is_api_token_set:
-            opt_text += '\n[WARNING] It appears that you have not set your API token yet.\nType "edit API_TOKEN <TOKEN>" to do so.\n'
+            opt_text += f'\n{bcolors.WARNING}[WARNING] It appears that you have not set your API token yet.{bcolors.ENDC}\nType "edit API_TOKEN <TOKEN>" to do so.\n'
         elif not is_url_set and is_api_token_set:
-            opt_text += '\n[WARNING] It appears that you have not set your URL yet.\nType "edit URL <URL>" to do so.\n'
+            opt_text += f'\n{bcolors.WARNING}[WARNING] It appears that you have not set your URL yet.{bcolors.ENDC}\nType "edit URL <URL>" to do so.\n'
         elif not (is_url_set and is_api_token_set):
-            opt_text += '\n[WARNING] It appears that you have not set neither your URL nor API token yet.\nType "edit URL <URL>" or "edit API_TOKEN <TOKEN>" to do so.\n'
+            opt_text += f'\n{bcolors.WARNING}[WARNING] It appears that you have not set neither your URL nor API token yet.{bcolors.ENDC}\nType "edit URL <URL>" or "edit API_TOKEN <TOKEN>" to do so.\n'
 
     intro = f"""
 Copyright {date.today().year} Afonso Costa
@@ -44,12 +44,12 @@ Type \"license\" for more information.
 Welcome to FireflyIII Command Line Interface!
 Created by Afonso Costa (@afonsoc12)
 
-===== Status =====
+=============== Status ===============
   - URL: {configs["API"]["URL"] if is_url_set else "(not set)"}
   - API Token: {"*****" + configs["API"]["API_TOKEN"][-5:] if is_api_token_set else "(not set)"}
-  - Connection: {"OK!" if api.api_test else "No connection!"}
-  - Version: {get_versions()["version"]}
-==================
+  - Version: v{get_versions()["version"]}
+  - Connection: {f"{bcolors.OKGREEN}OK!{bcolors.ENDC}" if api.api_test else f"{bcolors.FAIL}No connection!{bcolors.ENDC}"}
+======================================
 {opt_text}
 Type \"help\" to list commands.
 """
@@ -59,9 +59,7 @@ Type \"help\" to list commands.
         cls.configs = load_configs()
         cls.api = FireflyAPI(cls.configs["API"]["URL"], cls.configs["API"]["API_TOKEN"])
         print(
-            "API refreshed. Current Status: {}".format(
-                "OK!" if cls.api.api_test else "No connection!"
-            )
+            f"API refreshed. Current Status: {f'{bcolors.OKGREEN}OK!{bcolors.ENDC}' if cls.api.api_test else f'{bcolors.FAIL}No connection!{bcolors.ENDC}'}"
         )
 
     def do_exit(self, _):
@@ -170,18 +168,8 @@ limitations under the License.
                 print(f"An error has occurred.")
                 raise
 
-    def default(self, args):
-        if args.lower() in (
-            "x",
-            "q",
-        ):
-            return self.do_exit(args)
-
-        print(
-            '{} not recognized. Please type "help" to list the available commands'.format(
-                args
-            )
-        )
+    def default(self):
+        print('Input not recognised. Please type "help" to list the available commands')
 
     do_EOF = do_exit
     help_EOF = help_exit
