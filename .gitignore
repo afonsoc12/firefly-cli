@@ -1,3 +1,6 @@
+# firefly-cli config
+firefly-cli.ini
+
 # Flake 8
 .flake8
 

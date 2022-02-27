@@ -1,47 +1,22 @@
 from datetime import datetime
-from io import StringIO
-from pathlib import Path
 
 import pandas as pd
 
 
-def parse_transaction_to_df(input):
-    if isinstance(input, str):
-        cols = ['amount', 'description', 'source_name', 'destination_name', 'category', 'budget']
-        data = pd.read_csv(StringIO(input), header=None)
+def prompt_continue(extra_line=True, extra_msg=""):
+    extra_line = "\n" if extra_line else ""
+    valid_ans = ("y", "yes")
+    ans = input(f"{extra_line}Would you like to proceed{extra_msg}? (y/n): ")
 
-        # Add remaining columns None
-        data.columns = cols[:data.shape[1]]
-        data = pd.concat([data, pd.DataFrame([[None for _ in cols[data.shape[1]:]]], columns=cols[data.shape[1]:])],
-                         axis=1)
-        data.index = [datetime.now()]
-
-        # Convert all to string and strip edges
-        data = data.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-        return data
+    return ans.lower() in valid_ans
 
 
-def parse_csv_to_df(file):
-    """Parses a .csv file to dataframe.
+def json_serial(obj, iso_format=True):
+    """JSON serializer for objects not serializable by default json code"""
 
-    Assumes that the file exists
-    """
-    cols = ['date', 'amount', 'description', 'source_name', 'destination_name', 'category', 'budget', 'attachment', 'processed']
-
-    data = pd.read_csv(file, header=True)
-
-    if data.columns.tolist()[:4] not in cols:
-        print('[ERROR] Columns of the file don\'t match!')
-        print('\t> Found: {}'.format(' | ' .join(cols)))
-        print('\t> Expected: {}'.format(' | ' .join(cols)))
-        return None
-
-    # Add remaining columns None
-    data.columns = cols[:data.shape[1]]
-    data = pd.concat([data, pd.DataFrame([[None for _ in cols[data.shape[1]:]]], columns=cols[data.shape[1]:])],
-                         axis=1)
-    data.index = [datetime.now()]
-
-    # Convert all to string and strip edges
-    data = data.apply(lambda x: x.str.strip() if x.dtype == "object" else x)
-    return data
+    if isinstance(obj, datetime):
+        if iso_format:
+            return obj.isoformat()
+        else:
+            return obj.strftime("%a, %Y-%m-%d %H:%M:%S")
+    raise TypeError("Type %s not serializable" % type(obj))
