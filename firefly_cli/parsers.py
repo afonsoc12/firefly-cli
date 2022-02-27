@@ -55,40 +55,40 @@ def get_add_parser():
     )
     add_parser.add_argument("--amount", type=float)
     add_parser.add_argument("--description")
-    add_parser.add_argument("--currency_id")
-    add_parser.add_argument("--currency_code")
-    add_parser.add_argument("--foreign_amount")
-    add_parser.add_argument("--foreign_currency_id")
-    add_parser.add_argument("--foreign_currency_code")
-    add_parser.add_argument("--budget_id")
-    add_parser.add_argument("--category_id")
-    add_parser.add_argument("--category_name")
-    add_parser.add_argument("--source_id")
-    add_parser.add_argument("--source_name")
-    add_parser.add_argument("--destination_id")
-    add_parser.add_argument("--destination_name")
-    add_parser.add_argument("--piggy_bank_id")
-    add_parser.add_argument("--piggy_bank_name")
-    add_parser.add_argument("--bill_id")
-    add_parser.add_argument("--bill_name")
+    add_parser.add_argument("--currency-id")
+    add_parser.add_argument("--currency-code")
+    add_parser.add_argument("--foreign-amount")
+    add_parser.add_argument("--foreign-currency-id")
+    add_parser.add_argument("--foreign-currency-code")
+    add_parser.add_argument("--budget-id")
+    add_parser.add_argument("--category-id")
+    add_parser.add_argument("--category-name")
+    add_parser.add_argument("--source-id")
+    add_parser.add_argument("--source-name")
+    add_parser.add_argument("--destination-id")
+    add_parser.add_argument("--destination-name")
+    add_parser.add_argument("--piggy-bank-id")
+    add_parser.add_argument("--piggy-bank-name")
+    add_parser.add_argument("--bill-id")
+    add_parser.add_argument("--bill-name")
     add_parser.add_argument("--tags")
     add_parser.add_argument("--notes")
-    add_parser.add_argument("--internal_reference")
-    add_parser.add_argument("--external_id")
-    add_parser.add_argument("--external_url")
-    add_parser.add_argument("--interest_date")
+    add_parser.add_argument("--internal-reference")
+    add_parser.add_argument("--external-id")
+    add_parser.add_argument("--external-url")
+    add_parser.add_argument("--interest-date")
     add_parser.add_argument(
-        "--book_date", metavar="YYYY-MM-DD", type=l_date_to_datetime
+        "--book-date", metavar="YYYY-MM-DD", type=l_date_to_datetime
     )
     add_parser.add_argument(
-        "--process_date", metavar="YYYY-MM-DD", type=l_date_to_datetime
+        "--process-date", metavar="YYYY-MM-DD", type=l_date_to_datetime
     )
-    add_parser.add_argument("--due_date", metavar="YYYY-MM-DD", type=l_date_to_datetime)
+    add_parser.add_argument("--due-date", metavar="YYYY-MM-DD", type=l_date_to_datetime)
     add_parser.add_argument(
-        "--payment_date", metavar="YYYY-MM-DD", type=l_date_to_datetime
+        "--payment-date", metavar="YYYY-MM-DD", type=l_date_to_datetime
     )
     add_parser.add_argument(
-        "--invoice_date", metavar="YYYY-MM-DD", type=l_date_to_datetime
+        "--invoice-date", metavar="YYYY-MM-DD", type=l_date_to_datetime
     )
 
     return add_parser

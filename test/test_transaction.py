@@ -1,8 +1,8 @@
 from datetime import datetime
 
-import parsers
 import pytest
 
+import parsers
 from firefly_cli.transaction import Transaction
 
 
@@ -62,7 +62,7 @@ class TestTransaction:
         "arg_str, fields_expected",
         [
             (
-                "3, mocha, bank1, expense1  --date 1970-01-01 --source_name bank2",
+                "3, mocha, bank1, expense1  --date 1970-01-01 --source-name bank2",
                 {
                     "transaction": [""],
                     "amount": "3",
@@ -74,7 +74,7 @@ class TestTransaction:
                 },
             ),
             (
-                "3, mocha, bank1  --date 1970-01-01 --destination_name expense3  --source_name bank2",
+                "3, mocha, bank1  --date 1970-01-01 --destination-name expense3  --source-name bank2",
                 {
                     "transaction": [""],
                     "amount": "3",
@@ -86,7 +86,7 @@ class TestTransaction:
                 },
             ),
             (
-                "3, mocha, bank1  --date 1970-01-01 --source_name bank2 --type deposit",
+                "3, mocha, bank1  --date 1970-01-01 --source-name bank2 --type deposit",
                 {
                     "transaction": [""],
                     "amount": "3",
