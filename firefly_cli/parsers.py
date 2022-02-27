@@ -5,6 +5,9 @@ from cmd2 import Cmd2ArgumentParser
 
 def get_add_parser():
     l_date_to_datetime = lambda s: datetime.strptime(s, "%Y-%m-%d").astimezone()
+    l_datetime_to_datetime = lambda s: datetime.strptime(
+        s, "%Y-%m-%dT%H:%M:%S"
+    ).astimezone()
 
     add_parser = Cmd2ArgumentParser()
 
@@ -12,22 +15,35 @@ def get_add_parser():
     add_parser.add_argument("transaction", nargs="*", help="Transaction data.")
 
     # Optional arguments (json header)
-    # todo make sure its converted to bool
     add_parser.add_argument(
-        "--apply_rules", default=True, dest="header__apply_rules", type=bool
+        "--apply-rules", default=True, dest="header__apply_rules", action="store_true"
     )
     add_parser.add_argument(
-        "--fire_webhooks", default=False, dest="header__fire_webhooks", type=bool
+        "--fire-webhooks",
+        default=False,
+        dest="header__fire_webhooks",
+        action="store_true",
     )
 
     # Optional arguments (json body)
-    add_parser.add_argument(
+    # Group mutually exclusive (date or datetime) stored as date.
+    # Allows to specify transaction date or transaction datetime
+    # Both stored as date
+    group_date = add_parser.add_mutually_exclusive_group()
+    group_date.add_argument(
         "--date",
         help="Transaction date (defaults to current date).",
-        metavar="YYYY-MM-DD",
+        metavar="yyyy-mm-dd",
         default=datetime.now().astimezone(),
         type=l_date_to_datetime,
     )
+    group_date.add_argument(
+        "--datetime",
+        metavar="yyyy-mm-ssTHH:MM:SS",
+        dest="date",
+        type=l_datetime_to_datetime,
+    )
+
     add_parser.add_argument(
         "--type",
         default="withdrawal",
