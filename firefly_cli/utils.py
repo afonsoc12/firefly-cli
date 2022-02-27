@@ -1,7 +1,5 @@
 from datetime import datetime
 
-import pandas as pd
-
 
 def prompt_continue(extra_line=True, extra_msg=""):
     extra_line = "\n" if extra_line else ""
