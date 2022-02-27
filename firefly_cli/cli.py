@@ -137,7 +137,7 @@ limitations under the License.
 
     @cmd2.with_argparser(get_add_parser())
     def do_add(self, parser):
-        trans = Transaction.from_input(parser)
+        trans = Transaction.from_argparse(parser)
         trans.parse_inline_transaction_to_attributes()
 
         missing_fields = trans.mandatory_fields_missing()

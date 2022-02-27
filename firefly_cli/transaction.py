@@ -17,16 +17,21 @@ class Transaction:
     }
 
     def __init__(self, **kwargs):
+        # Allow arguments to be comma-separated, but argparse splits by space instead
+        kwargs["transaction"] = list(
+            map(str.strip, " ".join(kwargs["transaction"]).split(","))
+        )
+
         self.__dict__.update(kwargs)
 
-    @classmethod
-    def from_input(cls, args):
-        args = vars(args)
-
-        # Allow arguments to be comma-separated, but argparse splits by space instead
-        args["transaction"] = list(
-            map(str.strip, " ".join(args["transaction"]).split(","))
+    def __eq__(self, other):
+        return self.to_dict(remove_none=True, include_header=False) == other.to_dict(
+            remove_none=True, include_header=False
         )
+
+    @classmethod
+    def from_argparse(cls, args):
+        args = vars(args)
 
         # Delete cmd2 arguments
         for k in list(args):
@@ -45,7 +50,7 @@ class Transaction:
 
         not_set = []
         for field in mandatory_fields:
-            if not self.__getattribute__(field):
+            if not getattr(self, field, None):
                 not_set.append(field)
 
         return not_set
@@ -58,7 +63,7 @@ class Transaction:
         for transaction_field, field in zip(
             self.transaction, self.inline_transaction_fields
         ):
-            if not self.__getattribute__(field):
+            if not getattr(self, field, None):
                 self.__setattr__(field, transaction_field)
 
     def to_dict(
@@ -121,20 +126,3 @@ class Transaction:
         tab_body = tabulate(d_body, headers=d_body.keys(), tablefmt="psql")
 
         return tab_header, tab_body
-
-    # Add remaining columns None
-    # data.columns = cols[: data.shape[1]]
-    # data = pd.concat(
-    #     [
-    #         data,
-    #         pd.DataFrame(
-    #             [[None for _ in cols[data.shape[1]:]]],
-    #             columns=cols[data.shape[1]:],
-    #         ),
-    #     ],
-    #     axis=1,
-    # )
-    # data.index = [datetime.now()]
-    #
-    # # Convert all to string and strip edges
-    # data = data.apply(lambda x: x.str.strip() if x.dtype == "object" else x)

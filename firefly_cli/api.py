@@ -87,7 +87,6 @@ class FireflyAPI:
                 -> `5, Large Mocha, Cash, , , UCO Bank`
         """
 
-        # TODO : Allow DataFrames bigger than 1
         trans_data = transaction.to_dict(remove_none=True, api_safe=True)
 
         header = {k: v for k, v in trans_data.items() if k.startswith("header__")}
@@ -98,21 +97,5 @@ class FireflyAPI:
         }
 
         payload = {**header, **body}
-        # if data["source_name"].iloc[0].isnumeric():
-        #     payload["transactions"][0]["source_id"] = data["source_name"].iloc[0]
-        # else:
-        #     payload["transactions"][0]["source_name"] = data["source_name"].iloc[0]
-        #
-        # if data["destination_name"].iloc[0] is not None:
-        #     if data["destination_name"].iloc[0].isnumeric():
-        #         payload["transactions"][0]["destination_id"] = data[
-        #             "destination_name"
-        #         ].iloc[0]
-        #     else:
-        #         payload["transactions"][0]["destination_name"] = data[
-        #             "destination_name"
-        #         ].iloc[0]
-        # else:
-        #     payload["transactions"][0]["destination_name"] = data["description"].iloc[0]
 
         return self._post(endpoint="transactions", payload=payload)
