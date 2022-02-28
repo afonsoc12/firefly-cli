@@ -1,14 +1,19 @@
+#!/usr/bin/env python3
+
+# Execute with
+# $ python firefly_cli/__main__.py
+# $ python -m firefly_cli
+
 import sys
-from .cli import FireflyPrompt
 
+if __package__ is None and not hasattr(sys, "frozen"):
+    # Direct call of __main__.py
+    import os.path
 
-def main():
+    path = os.path.realpath(os.path.abspath(__file__))
+    sys.path.insert(0, os.path.dirname(os.path.dirname(path)))
 
-    if len(sys.argv) > 1:
-        FireflyPrompt().onecmd(' '.join(sys.argv[1:]))
-    else:
-        FireflyPrompt().cmdloop()
-
+import firefly_cli
 
 if __name__ == "__main__":
-    sys.exit(main())
+    firefly_cli.main()

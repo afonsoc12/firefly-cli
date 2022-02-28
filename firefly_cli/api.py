@@ -1,9 +1,8 @@
 import requests
-import datetime
+
+from .transaction import Transaction
 
 """FireflyIII API Driver.
-Created by: @vjFaLk
-Enhanced by: @afonsoc12
 
 API documentation: https://api-docs.firefly-iii.org
 """
@@ -13,9 +12,17 @@ class FireflyAPI:
     """Firefly API driver Class."""
 
     def __init__(self, hostname, auth_token):
-        self.headers = {'Authorization': "Bearer " + auth_token if auth_token is not None else ''}
-        self.hostname = hostname if hostname is None or not hostname.endswith('/') else hostname[:-1]  # Remove trailing backslash
-        self.hostname = self.hostname + '/api/v1/' if hostname is not None else self.hostname
+        self.headers = {
+            "Authorization": "Bearer " + auth_token if auth_token is not None else ""
+        }
+        self.hostname = (
+            hostname
+            if hostname is None or not hostname.endswith("/")
+            else hostname[:-1]
+        )  # Remove trailing backslash
+        self.hostname = (
+            self.hostname + "/api/v1/" if hostname is not None else self.hostname
+        )
         self.api_test = self._test_api()
 
     def _test_api(self):
@@ -29,23 +36,24 @@ class FireflyAPI:
     def _post(self, endpoint, payload):
         """Handles general POST requests."""
 
-        response = requests.post("{}{}".format(self.hostname, endpoint),
-                             json=payload,
-                             # Pass extra headers, or it redirects to login
-                             headers={**self.headers,
-                                      **{'Content-Type': 'application/json',
-                                         'accept': 'application/json'}
-                                      }
-                             )
+        response = requests.post(
+            "{}{}".format(self.hostname, endpoint),
+            json=payload,
+            # Pass extra headers, or it redirects to login
+            headers={
+                **self.headers,
+                **{"Content-Type": "application/json", "accept": "application/json"},
+            },
+        )
 
         return response
 
     def _get(self, endpoint, params=None):
         """Handles general GET requests."""
 
-        response = requests.get("{}{}".format(self.hostname, endpoint),
-                                params=params,
-                                headers=self.headers)
+        response = requests.get(
+            "{}{}".format(self.hostname, endpoint), params=params, headers=self.headers
+        )
 
         return response.json()
 
@@ -64,7 +72,7 @@ class FireflyAPI:
 
         return self._get("about/user")
 
-    def create_transaction(self, data):
+    def create_transaction(self, transaction: Transaction):
         """Creates a new transaction.
         data:
             pd.DataFrame
@@ -79,30 +87,15 @@ class FireflyAPI:
                 -> `5, Large Mocha, Cash, , , UCO Bank`
         """
 
-        # TODO : Allow DataFrames bigger than 1
-        i = 0
+        trans_data = transaction.to_dict(remove_none=True, api_safe=True)
 
-        payload = {
-            "transactions": [{
-                "type": "withdrawal",
-                "description": data['description'].iloc[0],
-                "date": data.index[i].strftime("%Y-%m-%d"),
-                "amount": float(data['amount'].iloc[0]),
-                "budget_name": data['budget'].iloc[0],
-                "category_name": data['category'].iloc[0],
-            }]
+        header = {k: v for k, v in trans_data.items() if k.startswith("header__")}
+        body = {
+            "transactions": [
+                {k: v for k, v in trans_data.items() if not k.startswith("header__")}
+            ]
         }
-        if data['source_name'].iloc[0].isnumeric():
-            payload["transactions"][0]["source_id"] = data['source_name'].iloc[0]
-        else:
-            payload["transactions"][0]["source_name"] = data['source_name'].iloc[0]
 
-        if data['destination_name'].iloc[0] is not None:
-            if data['destination_name'].iloc[0].isnumeric():
-                payload["transactions"][0]["destination_id"] = data['destination_name'].iloc[0]
-            else:
-                payload["transactions"][0]["destination_name"] = data['destination_name'].iloc[0]
-        else:
-            payload["transactions"][0]["destination_name"] = data['description'].iloc[0]
+        payload = {**header, **body}
 
         return self._post(endpoint="transactions", payload=payload)
