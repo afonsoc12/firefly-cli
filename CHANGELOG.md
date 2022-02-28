@@ -2,13 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## v0.1.1 (2022-02-28)
-
-### Changed
-
-- Fixed bug where budgets and transactions would not be created (#9)
-
-## v0.1.0 (2022-02-28)
+## v0.1.2 (2022-02-28)
 
 ### New
 - Docker Image
@@ -25,6 +19,7 @@ All notable changes to this project will be documented in this file.
 - CLI engine migrated to [cmd2](https://cmd2.readthedocs.io/en/stable/)
 - Command line and entrypoint refactored
 - Bumped versioneer
+- Fixed bug where budgets and transactions would not be created (#9)
 
 ### Removed
 - pandas library dependency
