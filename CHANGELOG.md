@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## v0.1.0 (2022-02-27)
+## v0.1.0 (2022-02-28)
 
 ### New
 - Docker Image
