@@ -9,7 +9,7 @@ def get_add_parser():
         s, "%Y-%m-%dT%H:%M:%S"
     ).astimezone()
 
-    add_parser = Cmd2ArgumentParser()
+    add_parser = Cmd2ArgumentParser(description='Adds a new transaction to FireflyIII.', usage='add [comma-separated arguments] [-h] [--optional-arguments]')
 
     # Positional arguments
     add_parser.add_argument("transaction", nargs="*", help="Transaction data.")
