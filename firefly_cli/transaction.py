@@ -12,8 +12,8 @@ class Transaction:
         "description": True,
         "source_name": True,
         "destination_name": True,
-        "category": False,
-        "budget": False,
+        "category_name": False,
+        "budget_name": False,
     }
 
     def __init__(self, **kwargs):
