@@ -8,30 +8,6 @@ jobs:
   pytest:
     uses: ./.github/workflows/unit_testing.yml
 
-  release:
-    name: "Tagged Release"
-    needs:
-      - pytest
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: '0'
-      - name: Get version from versioneer
-        run: |
-          VER=$(echo $(python -c "import versioneer; print(versioneer.get_versions()['version'].replace('+', '-'))"))
-          echo "VERSION=$VER" >> $GITHUB_ENV
-      - name: Create Github release
-        uses: marvinpinto/action-automatic-releases@latest
-        with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          prerelease: false
-          title: "v${{ env.VERSION }}"
-          files: |
-            LICENSE
-            dist/firefly*
-
   pypi:
     name: Deploy to PyPI
     needs:
@@ -55,6 +31,15 @@ jobs:
         uses: pypa/gh-action-pypi-publish@master
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
+      - name: Create Github release
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        prerelease: false
+        title: "v${{ env.VERSION }}"
+        files: |
+          LICENSE
+          dist/firefly*
 
   docker:
     name: Deploy to Docker Hub (latest)
