@@ -32,14 +32,14 @@ jobs:
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
       - name: Create Github release
-      uses: marvinpinto/action-automatic-releases@latest
-      with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        prerelease: false
-        title: "v${{ env.VERSION }}"
-        files: |
-          LICENSE
-          dist/firefly*
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          prerelease: false
+          title: "v${{ env.VERSION }}"
+          files: |
+            LICENSE
+            dist/firefly*
 
   docker:
     name: Deploy to Docker Hub (latest)

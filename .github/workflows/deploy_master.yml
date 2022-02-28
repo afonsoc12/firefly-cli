@@ -37,15 +37,15 @@ jobs:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
       - name: Create Github release (pre-release)
-          uses: marvinpinto/action-automatic-releases@latest
-          with:
-            repo_token: "${{ secrets.GITHUB_TOKEN }}"
-            automatic_release_tag: "dev-latest"
-            prerelease: true
-            title: "dev-v${{ env.VERSION }}"
-            files: |
-              LICENSE
-              dist/firefly*
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "dev-latest"
+          prerelease: true
+          title: "dev-v${{ env.VERSION }}"
+          files: |
+            LICENSE
+            dist/firefly*
 
   docker:
     name: Deploy to Docker Hub (dev-latest)
