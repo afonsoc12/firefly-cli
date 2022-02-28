@@ -63,48 +63,48 @@ jobs:
           password: ${{ secrets.TEST_PYPI_API_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
 
-#  docker:
-#    name: Deploy to Docker Hub (dev-latest)
-#    needs:
-#      - pytest
-#    if: ${{ github.ref == 'refs/heads/master' && !startsWith( github.ref, 'refs/tags/v' ) }}
-#    runs-on: ubuntu-latest
-#    steps:
-#      - name: Checkout
-#        uses: actions/checkout@v2
-#        with:
-#          fetch-depth: '0'
-#      - name: Get version from versioneer
-#        run: |
-#          echo "${{github.ref}}"
-#          VER=$(echo $(python -c "import versioneer; print(versioneer.get_versions()['version'].replace('+', '-'))"))
-#          echo "VERSION=$VER" >> $GITHUB_ENV
-#      - name: Set up QEMU
-#        uses: docker/setup-qemu-action@v1
-#      - name: Set up Docker Buildx
-#        uses: docker/setup-buildx-action@v1
-#      - name: Login to DockerHub
-#        uses: docker/login-action@v1
-#        with:
-#          username: ${{ secrets.DOCKER_USERNAME }}
-#          password: ${{ secrets.DOCKER_TOKEN }}
-#      - name: Login to GitHub Container Registry
-#        uses: docker/login-action@v1
-#        with:
-#          registry: ghcr.io
-#          username: ${{ github.repository_owner }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#      - name: Build and push
-#        uses: docker/build-push-action@v2
-#        with:
-#          context: .
-#          file: Dockerfile
-#          build-args: |
-#            VERSION=dev-v${{ env.VERSION }}
-#          platforms: linux/amd64,linux/arm64
-#          push: true
-#          tags: |
-#            afonsoc12/firefly-cli:dev-latest
-#            afonsoc12/firefly-cli:dev-v${{ env.VERSION }}
-#            ghcr.io/afonsoc12/firefly-cli:dev-latest
-#            ghcr.io/afonsoc12/firefly-cli:dev-v${{ env.VERSION }}
+  docker:
+    name: Deploy to Docker Hub (dev-latest)
+    needs:
+      - pytest
+    if: ${{ github.ref == 'refs/heads/master' && !startsWith( github.ref, 'refs/tags/v' ) }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: '0'
+      - name: Get version from versioneer
+        run: |
+          echo "${{github.ref}}"
+          VER=$(echo $(python -c "import versioneer; print(versioneer.get_versions()['version'].replace('+', '-'))"))
+          echo "VERSION=$VER" >> $GITHUB_ENV
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: Dockerfile
+          build-args: |
+            VERSION=dev-v${{ env.VERSION }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            afonsoc12/firefly-cli:dev-latest
+            afonsoc12/firefly-cli:dev-v${{ env.VERSION }}
+            ghcr.io/afonsoc12/firefly-cli:dev-latest
+            ghcr.io/afonsoc12/firefly-cli:dev-v${{ env.VERSION }}
