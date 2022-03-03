@@ -39,7 +39,7 @@ def get_add_parser():
     )
     group_date.add_argument(
         "--datetime",
-        metavar="yyyy-mm-ssTHH:MM:SS",
+        metavar="yyyy-mm-ddTHH:MM:SS",
         dest="date",
         type=l_datetime_to_datetime,
     )
