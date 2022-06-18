@@ -21,4 +21,4 @@ RUN apk update && \
 
 VOLUME /config
 
-CMD firefly-cli
+ENTRYPOINT ["firefly-cli"]
