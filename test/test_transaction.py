@@ -1,9 +1,12 @@
 from datetime import datetime
+from pathlib import Path
 
 import pytest
 
 from firefly_cli.parsers import get_add_parser
 from firefly_cli.transaction import Transaction
+
+test_data = Path(__file__).parent.joinpath("test_data")
 
 
 class TestTransaction:

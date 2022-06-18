@@ -1,0 +1,19 @@
+[
+  {
+    "data": [],
+    "meta": {
+      "pagination": {
+        "total": 0,
+        "count": 0,
+        "per_page": 50,
+        "current_page": 1,
+        "total_pages": 1
+      }
+    },
+    "links": {
+      "self": "http://localhost:8080/api/v1/accounts?type=hidden&page=1",
+      "first": "http://localhost:8080/api/v1/accounts?type=hidden&page=1",
+      "last": "http://localhost:8080/api/v1/accounts?type=hidden&page=1"
+    }
+  }
+]
