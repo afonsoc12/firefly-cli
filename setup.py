@@ -16,10 +16,10 @@ setuptools.setup(
     url="https://github.com/afonsoc12/firefly-cli",
     packages=setuptools.find_packages(),
     install_requires=[
-        "cmd2>=2.4,<3",
-        "requests>=2.27,<3",
-        "tabulate>=0.8,<1",
-        "pyxdg>=0.27,<1",
+        "cmd2>=2.4.1,<3",
+        "requests-cache>=0.9.4,<1",
+        "tabulate>=0.8.9,<1",
+        "pyxdg>=0.28,<1",
     ],
     entry_points={"console_scripts": ["firefly-cli = firefly_cli:main"]},
     classifiers=[
