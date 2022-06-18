@@ -6,6 +6,8 @@ test
 # firefly-cli config
 firefly-cli.ini
 
+.testout
+
 # Flake 8
 .flake8
 
@@ -13,7 +15,7 @@ firefly-cli.ini
 .travis.yml
 
 # Byte-compiled / optimized / DLL files
-__pycache__/
+__pycache__
 *.py[cod]
 *$py.class
 

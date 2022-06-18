@@ -1,8 +1,6 @@
 from datetime import datetime
 
-from tabulate import tabulate
-
-from .utils import json_serial
+from firefly_cli.utils import json_serial, tabulate
 
 
 class Transaction:
@@ -122,7 +120,7 @@ class Transaction:
             },
         }
 
-        tab_header = tabulate(d_header, headers=d_header.keys(), tablefmt="psql")
-        tab_body = tabulate(d_body, headers=d_body.keys(), tablefmt="psql")
+        tab_header = tabulate(d_header)
+        tab_body = tabulate(d_body)
 
         return tab_header, tab_body
