@@ -28,5 +28,6 @@ services:
       - MYSQL_USER=firefly
       - MYSQL_PASSWORD=firefly
       - MYSQL_DATABASE=firefly
+      - TZ=Europe/London
     ports:
       - 3306:3306
