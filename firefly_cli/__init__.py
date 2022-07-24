@@ -2,15 +2,22 @@ import sys
 
 from firefly_cli._version import get_versions
 from firefly_cli.cli import FireflyPrompt
-
+from firefly_cli.parser import Parser
 __version__ = get_versions()["version"]
 
 
 def _real_main():
 
     if len(sys.argv) > 1:
+        args, ffargs = Parser.entrypoint().parse_known_args()
+
         try:
-            FireflyPrompt().onecmd(" ".join(sys.argv[1:]))
+            if args.version:
+                FireflyPrompt().onecmd('version')
+            elif args.help:
+                FireflyPrompt().onecmd('help')
+            else:
+                FireflyPrompt().onecmd(" ".join(ffargs))
         except Exception:
             raise
     else:
@@ -24,5 +31,6 @@ def main():
         print("\nInterrupted by user")
     except:
         # Silence raising exceptions
-        pass
+        raise
+        # pass
 

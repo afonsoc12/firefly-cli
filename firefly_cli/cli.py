@@ -7,7 +7,7 @@ from firefly_cli._version import get_versions
 from firefly_cli.api import FireflyAPI
 from firefly_cli.bcolors import bcolors
 from firefly_cli.configs import *
-from firefly_cli.parsers import get_add_parser, get_show_accounts
+from firefly_cli.parser import Parser
 from firefly_cli.transaction import Transaction
 from firefly_cli.utils import prompt_continue, tabulate
 
@@ -69,10 +69,6 @@ Type \"help\" to list commands.
     def format_version():
         return f"firefly-cli: {get_versions()['version']}"
 
-    def do_exit(self, _):
-        self.poutput("Bye! Come store new transactions soon!")
-
-
     def do_license(self, _):
         self.poutput(
             f"""
@@ -126,9 +122,9 @@ limitations under the License.
             "Edits connection credentials:\n\t> edit url http://<FireflyIII URL>:<Port>\n\t> edit api <API key>"
         )
 
-    @cmd2.with_argparser(get_show_accounts())
+    @cmd2.with_argparser(Parser.accounts())
     def do_accounts(self, parser):
-        accounts = self.api.get_accounts()
+        accounts = self.api.get_accounts(limit=parser.limit)
         if parser.json:
             self.poutput(json.dumps(accounts, sort_keys=True, indent=4))
         else:
@@ -146,7 +142,7 @@ limitations under the License.
     def help_budgets(self):
         self.poutput("Shows your budgets.")
 
-    @cmd2.with_argparser(get_add_parser())
+    @cmd2.with_argparser(Parser.add())
     def do_add(self, parser):
         trans = Transaction.from_argparse(parser)
         trans.parse_inline_transaction_to_attributes()
@@ -181,12 +177,20 @@ limitations under the License.
                 self.poutput(f"An error has occurred.")
                 raise
 
+    def do_exit(self, _):
+        self.poutput("Bye! Come store new transactions soon!")
+        return True
+
     def help_exit(self):
         return self.poutput("exit the application. Shorthand: x q Ctrl-D.")
+
     def default(self):
         self.poutput(
             'Input not recognised. Please type "help" to list the available commands'
         )
+
+    do_q = do_exit
+    help_q = help_exit
 
     do_EOF = do_exit
     help_EOF = help_exit

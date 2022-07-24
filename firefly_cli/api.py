@@ -18,15 +18,15 @@ class FireflyAPI:
     )
     rc.cache.clear()
 
-    def __init__(self, hostname, auth_token):
+    def __init__(self, hostname, auth_token, check_connection=True):
         self.headers = {"Authorization": "Bearer " + auth_token if auth_token else ""}
         self.hostname = (
             hostname
             if hostname is None or not hostname.endswith("/")
             else hostname[:-1]
         )  # Remove trailing backslash
-        self.hostname = self.hostname + "/api/v1/" if hostname else self.hostname
-        self.api_test = self._test_api()
+        self.api_url = self.hostname + "/api/v1/" if hostname else self.hostname
+        self.api_test = self._test_api() if check_connection else False
 
     def _test_api(self):
         """Tests API connection."""
@@ -40,7 +40,7 @@ class FireflyAPI:
         """Handles general POST requests."""
 
         response = self.rc.post(
-            "{}{}".format(self.hostname, endpoint),
+            "{}{}".format(self.api_url, endpoint),
             json=payload,
             # Pass extra headers, or it redirects to login
             headers={
@@ -51,50 +51,51 @@ class FireflyAPI:
 
         return response
 
-    def _get(self, endpoint, params={}, cache=False, pagination=False):
+    def _get(self, endpoint, params={}, cache=False):
         """Handles general GET requests."""
 
-        responses = []
         with self.rc.cache_disabled() if not cache else nullcontext():
             response = self.rc.get(
-                "{}{}".format(self.hostname, endpoint),
+                "{}{}".format(self.api_url, endpoint),
                 params=params,
                 headers=self.headers,
             )
 
-        responses.append(response.json())
-
-        if pagination:
-            while "next" in response.json()["links"]:
-                params["page"] = (
-                    response.json()["meta"]["pagination"]["current_page"] + 1
-                )
-                with self.rc.cache_disabled() if not cache else nullcontext():
-                    response = self.rc.get(
-                        "{}{}".format(self.hostname, endpoint),
-                        params=params,
-                        headers=self.headers,
-                    )
-
-                responses.append(response.json())
-
-        return responses
+        return response.json()
 
     def get_budgets(self):
         """Returns budgets of the user."""
 
         return self._get("budgets")
 
-    def get_accounts(self, account_type="asset", cache=False, pagination=False):
-        """Returns all user accounts."""
-        params = {"type": account_type} if account_type else {}
+    def get_accounts(self, account_type="asset", cache=False, pagination=False, limit=None):
+        """Returns all user accounts.
 
-        return self._get("accounts", params=params, cache=cache, pagination=pagination)
+           If limit is set, it will be rounded up to the nearest 50. If limit is smaller than per_page, then a single
+           page will be requested.
+        """
+        params = {"type": account_type if account_type else None,
+                  "page": 1 if pagination else None
+                  }
+        pages = []
+        page = self._get("accounts", params=params, cache=cache)
 
-    def get_autocomplete_accounts(self):
+        pages.append(page)
+
+        if pagination:
+            while "next" in page["links"] and FireflyAPI.count_total_page_elements(pages) < limit:
+                params["page"] = (
+                    page["meta"]["pagination"]["current_page"] + 1
+                )
+                page = self._get("accounts", params=params, cache=cache)
+                pages.append(page)
+
+        return pages
+
+    def get_autocomplete_accounts(self, limit=20):
         """Returns all user accounts."""
-        acc_data = self.get_accounts(account_type=None, cache=True, pagination=True)
-        account_names = FireflyAPI.process_accounts(acc_data, format='autocomplete')
+        acc_data = self.get_accounts(account_type=None, cache=True, pagination=True, limit=limit)
+        account_names = FireflyAPI.process_accounts(acc_data, format='autocomplete', limit=limit)
 
         return account_names
 
@@ -132,16 +133,20 @@ class FireflyAPI:
         return self._post(endpoint="transactions", payload=payload)
 
     @staticmethod
-    def process_accounts(data, format="full"):
+    def process_accounts(data, format="full", limit=9999):
+        """Uses the same limit as the request"""
 
         accounts_proc = [] if format == "autocomplete" else {}
 
+        break_outer = False
         for page in data:
             for acc in page["data"]:
+                if (type(accounts_proc) == list and len(accounts_proc) == limit) or (type(accounts_proc) == dict and len(accounts_proc.setdefault("name", [])) == limit):
+                    break_outer = True
+                    break
                 if format == "autocomplete":
 
                     acc_fmt = acc['attributes']['name']
-                    acc_fmt += f" ({acc['attributes']['currency_symbol']}{acc['attributes']['current_balance']})" if acc['attributes']['type'] == 'asset' else ""
                     accounts_proc.append(acc_fmt)
 
                 elif format == "full":
@@ -156,9 +161,17 @@ class FireflyAPI:
                 else:
                     raise ValueError(f"Format {format} is not valid for process_accounts")
 
+            if break_outer:
+                break
 
         return accounts_proc
+
+    @staticmethod
+    def count_total_page_elements(data):
+        """Sums the total elements of "data" for all pages."""
+        return sum(len(page['data']) for page in data)
 
     @classmethod
     def flush_cache(cls):
         cls.rc.cache.clear()
+
