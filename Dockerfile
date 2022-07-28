@@ -1,23 +1,47 @@
-FROM python:3.8-alpine
+ARG DOCKER_IMAGE=python:3.9-alpine \
+    USER=nonroot \
+    GROUP=nonroot \
+    UID=1234 \
+    GID=4321
 
-LABEL maintainer="Afonso Costa (@afonsoc12)"
+# Install image
+FROM $DOCKER_IMAGE AS install-image
 
-ARG VERSION="n/a"
-ENV XDG_CONFIG_HOME=/config
-ENV TZ=Europe/Lisbon
-
-LABEL VERSION=${VERSION}
-
-WORKDIR /src
+WORKDIR /app
 
 COPY . .
 
-RUN apk update && \
-    apk add tzdata && \
-    echo -e "def get_versions():\n    return {'version': '${VERSION}', 'full-revisionid': 'n/a', 'date': 'n/a', 'dirty': 'n/a', 'error': 'n/a'}" \
-    > firefly_cli/_version.py && \
-    pip install --upgrade pip && \
-    pip install .
+RUN apk add --no-cache tzdata git \
+    && pip install --no-cache-dir --upgrade pip \
+    && pip install --user --no-cache-dir .
+
+# Runtime image
+FROM $DOCKER_IMAGE AS runtime-image
+
+ARG USER \
+    GROUP \
+    UID \
+    GID
+
+ENV PATH="/home/.local/bin:$PATH" \
+    XDG_CONFIG_HOME=/config \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+RUN mkdir -p /home $XDG_CONFIG_HOME \
+    && addgroup --gid $GID $GROUP \
+    && adduser -D -H --gecos "" \
+                     --home "/home" \
+                     --ingroup "$GROUP" \
+                     --uid "$UID" \
+                     "$USER" \
+    && chown -R $USER:$GROUP /home $XDG_CONFIG_HOME \
+    && rm -rf /tmp/* /var/{cache,log}/* /var/lib/apt/lists/*
+
+USER nonroot
+WORKDIR /home
+
+COPY --from=install-image --chown=$USER:$GROUP /root/.local /home/.local
 
 VOLUME /config
 

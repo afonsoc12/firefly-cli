@@ -1,14 +1,14 @@
 <img src="https://www.firefly-iii.org/assets/logo/color.png" width="150">
 
 # Firefly III Command Line Interface
+[![Docker Pulls](https://img.shields.io/docker/pulls/afonsoc12/firefly-cli?logo=docker)](https://hub.docker.com/repository/docker/afonsoc12/firefly-cli)
 [![PyPi Version](https://img.shields.io/pypi/v/firefly-cli.svg)](https://pypi.org/project/firefly-cli/)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-<!-- [![Docker Pulls](https://img.shields.io/docker/pulls/afonsoc12/firefly-cli?logo=docker)](https://hub.docker.com/repository/docker/afonsoc12/firefly-cli) -->
 
-[![Github Starts](https://img.shields.io/github/stars/afonsoc12/firefly-cli?logo=github)](https://github.com/afonsoc12/firefly-cli)
-[![Github Fork](https://img.shields.io/github/forks/afonsoc12/firefly-cli?logo=github)](https://github.com/afonsoc12/firefly-cli)
 [![Github Release](https://img.shields.io/github/v/release/afonsoc12/firefly-cli?logo=github)](https://github.com/afonsoc12/firefly-cli/releases)
+[![Github Stars](https://img.shields.io/github/stars/afonsoc12/firefly-cli?logo=github)](https://github.com/afonsoc12/firefly-cli)
+[![Github Fork](https://img.shields.io/github/forks/afonsoc12/firefly-cli?logo=github)](https://github.com/afonsoc12/firefly-cli)
 
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 A python-based command line interface for conveniently entering expenses in [Firefly III](https://www.firefly-iii.org).
@@ -27,14 +27,15 @@ firefly-cli
 ```
 
 ## 2. Docker Image
-Currently, there are images for both `x86-64` and `arm64` architectures. 
+Currently, there are images for `x86-64`, `arm64` and `arm/v7` architectures.
 
-They are built from python's Linux Alpine base image (`python:3.7-alpine`) which makes the application very slim (less than 20MB). 
+They are built from python's Linux Alpine base image (`python:3.9-alpine`) which makes the application very slim (less than 20MB).
 
 | Architecture<br>[![Docker Image Size](https://img.shields.io/docker/image-size/afonsoc12/firefly-cli/latest?logo=docker)](https://hub.docker.com/repository/docker/afonsoc12/firefly-cli/tags?page=1&ordering=last_updated&name=latest) | Tag<br>[![Docker Dev Version](https://img.shields.io/docker/v/afonsoc12/firefly-cli/latest?logo=docker)](https://hub.docker.com/repository/docker/afonsoc12/firefly-cli/tags?page=1&ordering=last_updated&name=latest) |
-|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-|                                                                                                                    x86-64                                                                                                                     |                                                                                                         latest                                                                                                         |
-|                                                                                                                     arm64                                                                                                                     |                                                                                                         latest                                                                                                         |
+|:---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|                                                                                                                 x86-64                                                                                                                  |                                                                                                         latest                                                                                                         |
+|                                                                                                                  arm64                                                                                                                  |                                                                                                         latest                                                                                                         |
+|                                                                                                                  arm/v7                                                                                                                  |                                                                                                         latest                                                                                                         |
 
 There are also development images with the latest on master branch:
 
@@ -42,6 +43,7 @@ There are also development images with the latest on master branch:
 |:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
 |                                                                                                                   x86-64                                                                                                                    |                                                                                                               dev-latest                                                                                                               |
 |                                                                                                                    arm64                                                                                                                    |                                                                                                               dev-latest                                                                                                               |
+|                                                                                                                    arm/v7                                                                                                                    |                                                                                                               dev-latest                                                                                                               |
 
 Getting started with firefly-cli Docker:
 ```shell
@@ -98,13 +100,13 @@ python -m firefly_cli
 The CLI has two modes of operation:
 
 1. In one-line command style:
-    
+
 ```shell
 $ firefly-cli add 5.2, Large Mocha, Cash, Starbucks
 ```
-  
+
 2. Command Line Interface:
-  
+
 ```bash
 $ firefly-cli
 
@@ -162,9 +164,9 @@ api_token = eyXXX
 firefly-cli can override this behaviour and read/write from the file specified by the environment variable `FIREFLY_CLI_CONFIG`.
 
 # Commands
-The scope of this CLI is to enter expenses in a comma-separated style. 
+The scope of this CLI is to enter expenses in a comma-separated style.
 
-Starting in **[v0.1.0](https://github.com/afonsoc12/firefly-cli/releases/tag/v0.1.0)**, it now supports adding all possible transaction fields using optional arguments (e.g. `--source-name "Bank HSBC"`). 
+Starting in **[v0.1.0](https://github.com/afonsoc12/firefly-cli/releases/tag/v0.1.0)**, it now supports adding all possible transaction fields using optional arguments (e.g. `--source-name "Bank HSBC"`).
 The comma-separated arguments (aka positional arguments) are maintained for backwards-compatibility, but optional arguments will **always** override the comma-separated ones
 
 Summary of the available commands:
@@ -185,7 +187,7 @@ Summary of the available commands:
 ## Adding a transaction
 The command `add` is responsible for entering a new transaction in your Firefly instance. Further help can be shown by typing `add --help` or `help add`.
 
-By default, every transaction is a **withdrawal** and is placed with the current date and time. 
+By default, every transaction is a **withdrawal** and is placed with the current date and time.
 You may change transaction type by including the optional argument `--type`, change the transaction date with `--date yyyy-mm-dd` or if you would like to be more precise `--datetime yyyy-mm-ddTHH:MM:SS`.
 
 The comma-separated fields available are the following:

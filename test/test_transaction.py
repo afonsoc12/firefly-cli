@@ -3,14 +3,17 @@ from pathlib import Path
 
 import pytest
 
-from firefly_cli.parsers import get_add_parser
+from firefly_cli._version import get_versions
+from firefly_cli.parser import Parser
 from firefly_cli.transaction import Transaction
+
+VERSION = get_versions()["version"]
 
 test_data = Path(__file__).parent.joinpath("test_data")
 
 
 class TestTransaction:
-    parser = get_add_parser()
+    parser = Parser.add()
 
     @pytest.mark.parametrize(
         "fields, fields_missing",
@@ -42,6 +45,7 @@ class TestTransaction:
                     "transaction": [" 3 ,  mocha  , bank1 , expense1 "],
                     "date": datetime.strptime("1970-01-01", "%Y-%m-%d").astimezone(),
                     "type": "withdrawal",
+                    "notes": f"Inserted by firefly-cli (v{VERSION})",
                 },
                 " 3 ,  mocha  , bank1 , expense1  --date 1970-01-01",
             )
@@ -74,6 +78,7 @@ class TestTransaction:
                     "destination_name": "expense1",
                     "date": datetime.strptime("1970-01-01", "%Y-%m-%d").astimezone(),
                     "type": "withdrawal",
+                    "notes": f"Inserted by firefly-cli (v{VERSION})",
                 },
             ),
             (
@@ -86,6 +91,7 @@ class TestTransaction:
                     "destination_name": "expense3",
                     "date": datetime.strptime("1970-01-01", "%Y-%m-%d").astimezone(),
                     "type": "withdrawal",
+                    "notes": f"Inserted by firefly-cli (v{VERSION})",
                 },
             ),
             (
@@ -97,6 +103,7 @@ class TestTransaction:
                     "source_name": "bank2",
                     "date": datetime.strptime("1970-01-01", "%Y-%m-%d").astimezone(),
                     "type": "deposit",
+                    "notes": f"Inserted by firefly-cli (v{VERSION})",
                 },
             ),
         ],

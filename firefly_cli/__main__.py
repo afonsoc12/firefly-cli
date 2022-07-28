@@ -16,4 +16,5 @@ if __package__ is None and not hasattr(sys, "frozen"):
 
 if __name__ == "__main__":
     import firefly_cli
+
     firefly_cli.main()

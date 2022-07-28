@@ -7,7 +7,7 @@ from firefly_cli._version import get_versions
 from firefly_cli.api import FireflyAPI
 from firefly_cli.bcolors import bcolors
 from firefly_cli.configs import *
-from firefly_cli.parsers import get_add_parser, get_show_accounts
+from firefly_cli.parser import Parser
 from firefly_cli.transaction import Transaction
 from firefly_cli.utils import prompt_continue, tabulate
 
@@ -51,27 +51,13 @@ Created by Afonso Costa (@afonsoc12)
 {opt_text}
 Type \"help\" to list commands.
 """
+
     def __init__(self):
         super(FireflyPrompt, self).__init__(allow_cli_args=False)
-
-    @classmethod
-    def refresh_api(cls):
-        cls.configs = load_configs()
-        cls.api = FireflyAPI(
-            cls.configs["firefly-cli"]["url"], cls.configs["firefly-cli"]["api_token"]
-        )
-        FireflyAPI.flush_cache()
-        cls.self.poutput(
-            f"API refreshed. Current Status: {f'{bcolors.OKGREEN}OK!{bcolors.ENDC}' if cls.api.api_test else f'{bcolors.FAIL}No connection!{bcolors.ENDC}'}"
-        )
 
     @staticmethod
     def format_version():
         return f"firefly-cli: {get_versions()['version']}"
-
-    def do_exit(self, _):
-        self.poutput("Bye! Come store new transactions soon!")
-
 
     def do_license(self, _):
         self.poutput(
@@ -102,7 +88,11 @@ limitations under the License.
         self.poutput("Displays version information.")
 
     def do_refresh(self, _):
-        FireflyPrompt.refresh_api()
+        self.configs = load_configs()
+        self.api = FireflyAPI.refresh_api(self.configs)
+        self.poutput(
+            f"API refreshed. Current Status: {f'{bcolors.OKGREEN}OK!{bcolors.ENDC}' if self.api.api_test else f'{bcolors.FAIL}No connection!{bcolors.ENDC}'}"
+        )
 
     def help_refresh(self):
         self.poutput("Refreshes API connection.")
@@ -117,7 +107,7 @@ limitations under the License.
             if argslist[0] == "url" or argslist[0] == "api_token":
                 self.configs["firefly-cli"][argslist[0]] = argslist[1]
                 save_configs_to_file(self.configs)
-                FireflyPrompt.refresh_api()
+                self.api = FireflyAPI.refresh_api(self.configs)
             else:
                 self.poutput(f'The argument "{argslist[0]}" is not recognised.')
 
@@ -126,14 +116,14 @@ limitations under the License.
             "Edits connection credentials:\n\t> edit url http://<FireflyIII URL>:<Port>\n\t> edit api <API key>"
         )
 
-    @cmd2.with_argparser(get_show_accounts())
+    @cmd2.with_argparser(Parser.accounts())
     def do_accounts(self, parser):
-        accounts = self.api.get_accounts()
+        accounts = self.api.get_accounts(limit=parser.limit)
         if parser.json:
             self.poutput(json.dumps(accounts, sort_keys=True, indent=4))
         else:
             accounts_pretty = FireflyAPI.process_accounts(accounts, format="full")
-            self.poutput(tabulate(accounts_pretty, header_fmt='capitalise_from_snake'))
+            self.poutput(tabulate(accounts_pretty, header_fmt="capitalise_from_snake"))
 
     def help_accounts(self):
         self.poutput("Shows your accounts.")
@@ -146,7 +136,7 @@ limitations under the License.
     def help_budgets(self):
         self.poutput("Shows your budgets.")
 
-    @cmd2.with_argparser(get_add_parser())
+    @cmd2.with_argparser(Parser.add())
     def do_add(self, parser):
         trans = Transaction.from_argparse(parser)
         trans.parse_inline_transaction_to_attributes()
@@ -181,12 +171,20 @@ limitations under the License.
                 self.poutput(f"An error has occurred.")
                 raise
 
+    def do_exit(self, _):
+        self.poutput("Bye! Come store new transactions soon!")
+        return True
+
     def help_exit(self):
         return self.poutput("exit the application. Shorthand: x q Ctrl-D.")
+
     def default(self):
         self.poutput(
             'Input not recognised. Please type "help" to list the available commands'
         )
+
+    do_q = do_exit
+    help_q = help_exit
 
     do_EOF = do_exit
     help_EOF = help_exit
