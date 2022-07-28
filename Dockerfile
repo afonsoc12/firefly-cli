@@ -17,7 +17,7 @@ RUN apk add --no-cache tzdata git \
 
 # Runtime image
 FROM $DOCKER_IMAGE AS runtime-image
-RUN echo "install-image: " && env
+
 ARG USER \
     GROUP \
     UID \

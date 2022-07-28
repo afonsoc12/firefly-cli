@@ -25,6 +25,6 @@ setuptools.setup(
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
     ],
-    license='Apache-2.0 license',
-    license_files='LICENSE'
+    license="Apache-2.0 license",
+    license_files="LICENSE",
 )

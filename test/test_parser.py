@@ -19,10 +19,10 @@ class TestParser:
     def test_add(self):
         pass
 
+
 class TestAutocomplete:
     def test_accounts_name_provider(self):
         pass
+
     def test_description_provider(self):
         pass
-
-

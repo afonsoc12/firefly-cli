@@ -2,13 +2,15 @@ import json
 from pathlib import Path
 
 import pytest
-
-from firefly_cli.api import FireflyAPI
 from requests_cache import CachedSession
 from requests_mock import Adapter
+
+from firefly_cli.api import FireflyAPI
+
 test_data = Path(__file__).parent.joinpath("test_data") / "api"
 
-URL = 'https://test.com'
+URL = "https://test.com"
+
 
 class TestAPI:
 
@@ -24,85 +26,129 @@ class TestAPI:
     with open(test_data / "accounts_pagination.json", "r") as f:
         accounts_pagination = json.loads(f.read())
 
-    @pytest.fixture(scope='function')
+    @pytest.fixture(scope="function")
     def mock_api(self):
         """Fixture that provides a CachedSession that will make mock requests where it would normally
         make real requests"""
 
-        api = FireflyAPI(hostname=URL, auth_token='test', check_connection=False)
+        api = FireflyAPI(hostname=URL, auth_token="test", check_connection=False)
 
         adapter = Adapter()
 
-        session = CachedSession(backend='memory')
-        session.mount('https://', adapter)
+        session = CachedSession(backend="memory")
+        session.mount("https://", adapter)
 
         api.rc = session
 
         yield api
 
     def test_get_accounts(self, mock_api):
-        endpoint = 'accounts'
-        mock_api.rc.get_adapter('https://').register_uri(
-            'GET',
-            f'{mock_api.api_url}{endpoint}?type=all',
-            headers={'Content-Type': 'application/json'},
+        endpoint = "accounts"
+        mock_api.rc.get_adapter("https://").register_uri(
+            "GET",
+            f"{mock_api.api_url}{endpoint}?type=all",
+            headers={"Content-Type": "application/json"},
             json=self.accounts_full[0],
             status_code=200,
         )
 
-        mock_api.rc.get_adapter('https://').register_uri(
-            'GET',
-            f'{mock_api.api_url}{endpoint}?type=all&page=1',
-            headers={'Content-Type': 'application/json'},
+        mock_api.rc.get_adapter("https://").register_uri(
+            "GET",
+            f"{mock_api.api_url}{endpoint}?type=all&page=1",
+            headers={"Content-Type": "application/json"},
             json=self.accounts_pagination[0],
             status_code=200,
         )
 
-        mock_api.rc.get_adapter('https://').register_uri(
-            'GET',
-            f'{mock_api.api_url}{endpoint}?type=all&page=2',
-            headers={'Content-Type': 'application/json'},
+        mock_api.rc.get_adapter("https://").register_uri(
+            "GET",
+            f"{mock_api.api_url}{endpoint}?type=all&page=2",
+            headers={"Content-Type": "application/json"},
             json=self.accounts_pagination[1],
             status_code=200,
         )
 
-        assert FireflyAPI.count_total_page_elements(mock_api.get_accounts(account_type='all', limit=3)) == 43
-        assert FireflyAPI.count_total_page_elements(mock_api.get_accounts(account_type='all', limit=3, pagination=True)) == 43
-        assert FireflyAPI.count_total_page_elements(mock_api.get_accounts(account_type='all', limit=52)) == 43
-        assert FireflyAPI.count_total_page_elements(mock_api.get_accounts(account_type='all', limit=52, pagination=True)) == 86
+        assert (
+            FireflyAPI.count_total_page_elements(
+                mock_api.get_accounts(account_type="all", limit=3)
+            )
+            == 43
+        )
+        assert (
+            FireflyAPI.count_total_page_elements(
+                mock_api.get_accounts(account_type="all", limit=3, pagination=True)
+            )
+            == 43
+        )
+        assert (
+            FireflyAPI.count_total_page_elements(
+                mock_api.get_accounts(account_type="all", limit=52)
+            )
+            == 43
+        )
+        assert (
+            FireflyAPI.count_total_page_elements(
+                mock_api.get_accounts(account_type="all", limit=52, pagination=True)
+            )
+            == 86
+        )
 
     def test_get_autocomplete_accounts(self, mock_api):
-        endpoint = 'accounts'
-        mock_api.rc.get_adapter('https://').register_uri(
-            'GET',
-            f'{mock_api.api_url}{endpoint}',
-            headers={'Content-Type': 'application/json'},
+        endpoint = "accounts"
+        mock_api.rc.get_adapter("https://").register_uri(
+            "GET",
+            f"{mock_api.api_url}{endpoint}",
+            headers={"Content-Type": "application/json"},
             json=self.accounts_full[0],
             status_code=200,
         )
 
-        mock_api.rc.get_adapter('https://').register_uri(
-            'GET',
-            f'{mock_api.api_url}{endpoint}?page=1',
-            headers={'Content-Type': 'application/json'},
+        mock_api.rc.get_adapter("https://").register_uri(
+            "GET",
+            f"{mock_api.api_url}{endpoint}?page=1",
+            headers={"Content-Type": "application/json"},
             json=self.accounts_pagination[0],
             status_code=200,
         )
 
-        mock_api.rc.get_adapter('https://').register_uri(
-            'GET',
-            f'{mock_api.api_url}{endpoint}?page=2',
-            headers={'Content-Type': 'application/json'},
+        mock_api.rc.get_adapter("https://").register_uri(
+            "GET",
+            f"{mock_api.api_url}{endpoint}?page=2",
+            headers={"Content-Type": "application/json"},
             json=self.accounts_pagination[1],
             status_code=200,
         )
 
-        assert mock_api.get_autocomplete_accounts() == self.accounts_data["test_process_accounts_autocomplete"]["expected"][2][:20]
-        assert mock_api.get_autocomplete_accounts(limit=10) == self.accounts_data["test_process_accounts_autocomplete"]["expected"][2][:10]
-        assert mock_api.get_autocomplete_accounts(limit=20) == self.accounts_data["test_process_accounts_autocomplete"]["expected"][2][:20]
-        assert mock_api.get_autocomplete_accounts(limit=52) == self.accounts_data["test_process_accounts_autocomplete"]["expected"][2][:52]
-        assert mock_api.get_autocomplete_accounts(limit=100) == self.accounts_data["test_process_accounts_autocomplete"]["expected"][2][:100]
-
+        assert (
+            mock_api.get_autocomplete_accounts()
+            == self.accounts_data["test_process_accounts_autocomplete"]["expected"][2][
+                :20
+            ]
+        )
+        assert (
+            mock_api.get_autocomplete_accounts(limit=10)
+            == self.accounts_data["test_process_accounts_autocomplete"]["expected"][2][
+                :10
+            ]
+        )
+        assert (
+            mock_api.get_autocomplete_accounts(limit=20)
+            == self.accounts_data["test_process_accounts_autocomplete"]["expected"][2][
+                :20
+            ]
+        )
+        assert (
+            mock_api.get_autocomplete_accounts(limit=52)
+            == self.accounts_data["test_process_accounts_autocomplete"]["expected"][2][
+                :52
+            ]
+        )
+        assert (
+            mock_api.get_autocomplete_accounts(limit=100)
+            == self.accounts_data["test_process_accounts_autocomplete"]["expected"][2][
+                :100
+            ]
+        )
 
     @pytest.mark.parametrize(
         "data, account_names",
@@ -125,9 +171,18 @@ class TestAPI:
         """Asserts if the missing fields are the ones expected."""
 
         assert FireflyAPI.process_accounts(data, format="autocomplete") == account_names
-        assert FireflyAPI.process_accounts(data, format="autocomplete", limit=10) == account_names[:10]
-        assert FireflyAPI.process_accounts(data, format="autocomplete", limit=52) == account_names[:52]
-        assert FireflyAPI.process_accounts(data, format="autocomplete", limit=100) == account_names[:100]
+        assert (
+            FireflyAPI.process_accounts(data, format="autocomplete", limit=10)
+            == account_names[:10]
+        )
+        assert (
+            FireflyAPI.process_accounts(data, format="autocomplete", limit=52)
+            == account_names[:52]
+        )
+        assert (
+            FireflyAPI.process_accounts(data, format="autocomplete", limit=100)
+            == account_names[:100]
+        )
 
     @pytest.mark.parametrize(
         "data, accounts_proc",
@@ -177,11 +232,15 @@ class TestAPI:
     def test_process_accounts_full(self, data, accounts_proc):
         """Asserts if the missing fields are the ones expected."""
         assert FireflyAPI.process_accounts(data, format="full") == accounts_proc
-        assert FireflyAPI.process_accounts(data, format="full", limit=10) == {k:v[:10] for k,v in accounts_proc.items()}
-        assert FireflyAPI.process_accounts(data, format="full", limit=52) == {k:v[:52] for k,v in accounts_proc.items()}
-        assert FireflyAPI.process_accounts(data, format="full", limit=100) == {k: v[:100] for k, v in
-                                                                              accounts_proc.items()}
-
+        assert FireflyAPI.process_accounts(data, format="full", limit=10) == {
+            k: v[:10] for k, v in accounts_proc.items()
+        }
+        assert FireflyAPI.process_accounts(data, format="full", limit=52) == {
+            k: v[:52] for k, v in accounts_proc.items()
+        }
+        assert FireflyAPI.process_accounts(data, format="full", limit=100) == {
+            k: v[:100] for k, v in accounts_proc.items()
+        }
 
     def test_count_total_page_elements(self):
         assert FireflyAPI.count_total_page_elements(self.accounts_empty) == 0

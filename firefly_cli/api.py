@@ -68,25 +68,29 @@ class FireflyAPI:
 
         return self._get("budgets")
 
-    def get_accounts(self, account_type="asset", cache=False, pagination=False, limit=None):
+    def get_accounts(
+        self, account_type="asset", cache=False, pagination=False, limit=None
+    ):
         """Returns all user accounts.
 
-           If limit is set, it will be rounded up to the nearest 50. If limit is smaller than per_page, then a single
-           page will be requested.
+        If limit is set, it will be rounded up to the nearest 50. If limit is smaller than per_page, then a single
+        page will be requested.
         """
-        params = {"type": account_type if account_type else None,
-                  "page": 1 if pagination else None
-                  }
+        params = {
+            "type": account_type if account_type else None,
+            "page": 1 if pagination else None,
+        }
         pages = []
         page = self._get("accounts", params=params, cache=cache)
 
         pages.append(page)
 
         if pagination:
-            while "next" in page["links"] and FireflyAPI.count_total_page_elements(pages) < limit:
-                params["page"] = (
-                    page["meta"]["pagination"]["current_page"] + 1
-                )
+            while (
+                "next" in page["links"]
+                and FireflyAPI.count_total_page_elements(pages) < limit
+            ):
+                params["page"] = page["meta"]["pagination"]["current_page"] + 1
                 page = self._get("accounts", params=params, cache=cache)
                 pages.append(page)
 
@@ -94,8 +98,12 @@ class FireflyAPI:
 
     def get_autocomplete_accounts(self, limit=20):
         """Returns all user accounts."""
-        acc_data = self.get_accounts(account_type=None, cache=True, pagination=True, limit=limit)
-        account_names = FireflyAPI.process_accounts(acc_data, format='autocomplete', limit=limit)
+        acc_data = self.get_accounts(
+            account_type=None, cache=True, pagination=True, limit=limit
+        )
+        account_names = FireflyAPI.process_accounts(
+            acc_data, format="autocomplete", limit=limit
+        )
 
         return account_names
 
@@ -133,6 +141,13 @@ class FireflyAPI:
         return self._post(endpoint="transactions", payload=payload)
 
     @staticmethod
+    def refresh_api(configs):
+        FireflyAPI.flush_cache()
+        return FireflyAPI(
+            configs["firefly-cli"]["url"], configs["firefly-cli"]["api_token"]
+        )
+
+    @staticmethod
     def process_accounts(data, format="full", limit=9999):
         """Uses the same limit as the request"""
 
@@ -141,25 +156,42 @@ class FireflyAPI:
         break_outer = False
         for page in data:
             for acc in page["data"]:
-                if (type(accounts_proc) == list and len(accounts_proc) == limit) or (type(accounts_proc) == dict and len(accounts_proc.setdefault("name", [])) == limit):
+                if (type(accounts_proc) == list and len(accounts_proc) == limit) or (
+                    type(accounts_proc) == dict
+                    and len(accounts_proc.setdefault("name", [])) == limit
+                ):
                     break_outer = True
                     break
                 if format == "autocomplete":
 
-                    acc_fmt = acc['attributes']['name']
+                    acc_fmt = acc["attributes"]["name"]
                     accounts_proc.append(acc_fmt)
 
                 elif format == "full":
 
-                    accounts_proc.setdefault("type", []).append(acc["attributes"]["type"])
-                    accounts_proc.setdefault("account_role", []).append(acc["attributes"]["account_role"])
-                    accounts_proc.setdefault("name", []).append(acc["attributes"]["name"])
-                    accounts_proc.setdefault("notes", []).append(acc["attributes"]["notes"])
-                    accounts_proc.setdefault("balance", []).append(f"{acc['attributes']['currency_symbol']} {acc['attributes']['current_balance']}")
-                    accounts_proc.setdefault("include_net_worth", []).append(acc["attributes"]["include_net_worth"])
+                    accounts_proc.setdefault("type", []).append(
+                        acc["attributes"]["type"]
+                    )
+                    accounts_proc.setdefault("account_role", []).append(
+                        acc["attributes"]["account_role"]
+                    )
+                    accounts_proc.setdefault("name", []).append(
+                        acc["attributes"]["name"]
+                    )
+                    accounts_proc.setdefault("notes", []).append(
+                        acc["attributes"]["notes"]
+                    )
+                    accounts_proc.setdefault("balance", []).append(
+                        f"{acc['attributes']['currency_symbol']} {acc['attributes']['current_balance']}"
+                    )
+                    accounts_proc.setdefault("include_net_worth", []).append(
+                        acc["attributes"]["include_net_worth"]
+                    )
 
                 else:
-                    raise ValueError(f"Format {format} is not valid for process_accounts")
+                    raise ValueError(
+                        f"Format {format} is not valid for process_accounts"
+                    )
 
             if break_outer:
                 break
@@ -169,9 +201,8 @@ class FireflyAPI:
     @staticmethod
     def count_total_page_elements(data):
         """Sums the total elements of "data" for all pages."""
-        return sum(len(page['data']) for page in data)
+        return sum(len(page["data"]) for page in data)
 
     @classmethod
     def flush_cache(cls):
         cls.rc.cache.clear()
-
