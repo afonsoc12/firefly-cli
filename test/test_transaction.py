@@ -1,15 +1,10 @@
 from datetime import datetime
-from pathlib import Path
 
 import pytest
 
-from firefly_cli._version import get_versions
+import firefly_cli
+from firefly_cli import Transaction
 from firefly_cli.parser import Parser
-from firefly_cli.transaction import Transaction
-
-VERSION = get_versions()["version"]
-
-test_data = Path(__file__).parent.joinpath("test_data")
 
 
 class TestTransaction:
@@ -45,7 +40,7 @@ class TestTransaction:
                     "transaction": [" 3 ,  mocha  , bank1 , expense1 "],
                     "date": datetime.strptime("1970-01-01", "%Y-%m-%d").astimezone(),
                     "type": "withdrawal",
-                    "notes": f"Inserted by firefly-cli (v{VERSION})",
+                    "notes": f"Inserted by firefly-cli (v{firefly_cli.__version__})",
                 },
                 " 3 ,  mocha  , bank1 , expense1  --date 1970-01-01",
             )
@@ -78,7 +73,7 @@ class TestTransaction:
                     "destination_name": "expense1",
                     "date": datetime.strptime("1970-01-01", "%Y-%m-%d").astimezone(),
                     "type": "withdrawal",
-                    "notes": f"Inserted by firefly-cli (v{VERSION})",
+                    "notes": f"Inserted by firefly-cli (v{firefly_cli.__version__})",
                 },
             ),
             (
@@ -91,7 +86,7 @@ class TestTransaction:
                     "destination_name": "expense3",
                     "date": datetime.strptime("1970-01-01", "%Y-%m-%d").astimezone(),
                     "type": "withdrawal",
-                    "notes": f"Inserted by firefly-cli (v{VERSION})",
+                    "notes": f"Inserted by firefly-cli (v{firefly_cli.__version__})",
                 },
             ),
             (
@@ -103,7 +98,7 @@ class TestTransaction:
                     "source_name": "bank2",
                     "date": datetime.strptime("1970-01-01", "%Y-%m-%d").astimezone(),
                     "type": "deposit",
-                    "notes": f"Inserted by firefly-cli (v{VERSION})",
+                    "notes": f"Inserted by firefly-cli (v{firefly_cli.__version__})",
                 },
             ),
         ],
@@ -121,3 +116,10 @@ class TestTransaction:
         transaction_expected.transaction = None
 
         assert transaction == transaction_expected
+
+    def test_to_dict(self):
+        pass
+
+    def test_get_tabulates(self):
+        # todo test get_tabulates
+        pass

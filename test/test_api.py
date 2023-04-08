@@ -1,68 +1,65 @@
-import json
-from pathlib import Path
+from test.utils import load_test_data
 
 import pytest
-from requests_cache import CachedSession
-from requests_mock import Adapter
 
-from firefly_cli.api import FireflyAPI
-
-test_data = Path(__file__).parent.joinpath("test_data") / "api"
-
-URL = "https://test.com"
+from firefly_cli import FireflyAPI, Transaction
+from firefly_cli.configs import load_configs
+from firefly_cli.parser import Parser
 
 
 class TestAPI:
+    test_data = load_test_data(__name__, "test_data.json")
+    accounts_full = load_test_data(__name__, "api_accounts_full.json")
+    accounts_empty = load_test_data(__name__, "api_accounts_empty.json")
+    accounts_pagination = load_test_data(__name__, "api_accounts_pagination.json")
+    transactions_response = load_test_data(__name__, "api_transactions_response.json")
+    about_user = load_test_data(__name__, "api_about_user.json")
 
-    with open(test_data / "accounts.json", "r") as f:
-        accounts_data = json.loads(f.read())
-
-    with open(test_data / "accounts_full.json", "r") as f:
-        accounts_full = json.loads(f.read())
-
-    with open(test_data / "accounts_empty.json", "r") as f:
-        accounts_empty = json.loads(f.read())
-
-    with open(test_data / "accounts_pagination.json", "r") as f:
-        accounts_pagination = json.loads(f.read())
-
-    @pytest.fixture(scope="function")
-    def mock_api(self):
-        """Fixture that provides a CachedSession that will make mock requests where it would normally
-        make real requests"""
-
-        api = FireflyAPI(hostname=URL, auth_token="test", check_connection=False)
-
-        adapter = Adapter()
-
-        session = CachedSession(backend="memory")
-        session.mount("https://", adapter)
-
-        api.rc = session
-
-        yield api
-
-    def test_get_accounts(self, mock_api):
-        endpoint = "accounts"
-        mock_api.rc.get_adapter("https://").register_uri(
+    def test_test_api_connection(self, api):
+        endpoint = "about/user"
+        api.rc.get_adapter("https://").register_uri(
             "GET",
-            f"{mock_api.api_url}{endpoint}?type=all",
+            f"{api.api_url}{endpoint}",
+            headers={"Content-Type": "application/json"},
+            json=self.about_user,
+            status_code=200,
+        )
+
+        assert api.get_about_user()
+
+    def test_get_about_user(self, api):
+        endpoint = "about/user"
+        api.rc.get_adapter("https://").register_uri(
+            "GET",
+            f"{api.api_url}{endpoint}",
+            headers={"Content-Type": "application/json"},
+            json=self.about_user,
+            status_code=200,
+        )
+
+        assert api.get_about_user()["data"]["attributes"]["email"] == "test@test.com"
+
+    def test_get_accounts(self, api):
+        endpoint = "accounts"
+        api.rc.get_adapter("https://").register_uri(
+            "GET",
+            f"{api.api_url}{endpoint}?type=all",
             headers={"Content-Type": "application/json"},
             json=self.accounts_full[0],
             status_code=200,
         )
 
-        mock_api.rc.get_adapter("https://").register_uri(
+        api.rc.get_adapter("https://").register_uri(
             "GET",
-            f"{mock_api.api_url}{endpoint}?type=all&page=1",
+            f"{api.api_url}{endpoint}?type=all&page=1",
             headers={"Content-Type": "application/json"},
             json=self.accounts_pagination[0],
             status_code=200,
         )
 
-        mock_api.rc.get_adapter("https://").register_uri(
+        api.rc.get_adapter("https://").register_uri(
             "GET",
-            f"{mock_api.api_url}{endpoint}?type=all&page=2",
+            f"{api.api_url}{endpoint}?type=all&page=2",
             headers={"Content-Type": "application/json"},
             json=self.accounts_pagination[1],
             status_code=200,
@@ -70,100 +67,137 @@ class TestAPI:
 
         assert (
             FireflyAPI.count_total_page_elements(
-                mock_api.get_accounts(account_type="all", limit=3)
+                api.get_accounts(account_type="all", limit=3)
             )
             == 43
         )
         assert (
             FireflyAPI.count_total_page_elements(
-                mock_api.get_accounts(account_type="all", limit=3, pagination=True)
+                api.get_accounts(account_type="all", limit=3, pagination=True)
             )
             == 43
         )
         assert (
             FireflyAPI.count_total_page_elements(
-                mock_api.get_accounts(account_type="all", limit=52)
+                api.get_accounts(account_type="all", limit=52)
             )
             == 43
         )
         assert (
             FireflyAPI.count_total_page_elements(
-                mock_api.get_accounts(account_type="all", limit=52, pagination=True)
+                api.get_accounts(account_type="all", limit=52, pagination=True)
             )
             == 86
         )
 
-    def test_get_autocomplete_accounts(self, mock_api):
+    def test_get_budgets(self):
+        # todo test get_budgets
+        pass
+
+    def test_get_autocomplete_accounts(self, api):
         endpoint = "accounts"
-        mock_api.rc.get_adapter("https://").register_uri(
+        api.rc.get_adapter("https://").register_uri(
             "GET",
-            f"{mock_api.api_url}{endpoint}",
+            f"{api.api_url}{endpoint}",
             headers={"Content-Type": "application/json"},
             json=self.accounts_full[0],
             status_code=200,
         )
 
-        mock_api.rc.get_adapter("https://").register_uri(
+        api.rc.get_adapter("https://").register_uri(
             "GET",
-            f"{mock_api.api_url}{endpoint}?page=1",
+            f"{api.api_url}{endpoint}?page=1",
             headers={"Content-Type": "application/json"},
             json=self.accounts_pagination[0],
             status_code=200,
         )
 
-        mock_api.rc.get_adapter("https://").register_uri(
+        api.rc.get_adapter("https://").register_uri(
             "GET",
-            f"{mock_api.api_url}{endpoint}?page=2",
+            f"{api.api_url}{endpoint}?page=2",
             headers={"Content-Type": "application/json"},
             json=self.accounts_pagination[1],
             status_code=200,
         )
 
         assert (
-            mock_api.get_autocomplete_accounts()
-            == self.accounts_data["test_process_accounts_autocomplete"]["expected"][2][
-                :20
-            ]
+            api.get_autocomplete_accounts()
+            == self.test_data["test_process_accounts_autocomplete"]["expected"][2][:20]
         )
         assert (
-            mock_api.get_autocomplete_accounts(limit=10)
-            == self.accounts_data["test_process_accounts_autocomplete"]["expected"][2][
-                :10
-            ]
+            api.get_autocomplete_accounts(limit=10)
+            == self.test_data["test_process_accounts_autocomplete"]["expected"][2][:10]
         )
         assert (
-            mock_api.get_autocomplete_accounts(limit=20)
-            == self.accounts_data["test_process_accounts_autocomplete"]["expected"][2][
-                :20
-            ]
+            api.get_autocomplete_accounts(limit=20)
+            == self.test_data["test_process_accounts_autocomplete"]["expected"][2][:20]
         )
         assert (
-            mock_api.get_autocomplete_accounts(limit=52)
-            == self.accounts_data["test_process_accounts_autocomplete"]["expected"][2][
-                :52
-            ]
+            api.get_autocomplete_accounts(limit=52)
+            == self.test_data["test_process_accounts_autocomplete"]["expected"][2][:52]
         )
         assert (
-            mock_api.get_autocomplete_accounts(limit=100)
-            == self.accounts_data["test_process_accounts_autocomplete"]["expected"][2][
-                :100
-            ]
+            api.get_autocomplete_accounts(limit=100)
+            == self.test_data["test_process_accounts_autocomplete"]["expected"][2][:100]
         )
+
+    def test_create_transaction(self, api):
+        endpoint = "transactions"
+
+        arg_str = "3, mocha, bank1  --date 1970-01-01 --destination-name expense3 --source-name bank"
+        parser = Parser.add().parse_args([a for a in arg_str.split(" ") if a])
+        transaction = Transaction.from_argparse(parser)
+        transaction.parse_inline_transaction_to_attributes()
+
+        api.rc.get_adapter("https://").register_uri(
+            "POST",
+            f"{api.api_url}{endpoint}",
+            headers={"Content-Type": "application/json"},
+            json=self.transactions_response,
+            status_code=200,
+        )
+
+        response = api.create_transaction(transaction)
+
+        assert response.json() == self.transactions_response
+
+    def test_payload_formatter(self, api):
+
+        arg_str = "3, mocha, bank1  --date 1970-01-01 --destination-name expense3 --source-name bank2"
+        parser = Parser.add().parse_args([a for a in arg_str.split(" ") if a])
+        transaction = Transaction.from_argparse(parser)
+        transaction.parse_inline_transaction_to_attributes()
+
+        payload = api.payload_formatter(transaction)
+
+        assert len([k for k in payload.keys() if k.startswith("header__")]) == 0
+        assert len(payload.keys()) <= 5
+        assert "transactions" in payload and isinstance(payload["transactions"], list)
+        assert {
+            "type",
+            "amount",
+            "description",
+            "source_name",
+            "destination_name",
+        }.issubset(payload["transactions"][0].keys())
+
+    def test_refresh_api(self, api):
+        assert isinstance(api.refresh_api(load_configs()), FireflyAPI)
 
     @pytest.mark.parametrize(
         "data, account_names",
         [
             (
                 accounts_full,
-                accounts_data["test_process_accounts_autocomplete"]["expected"][0],
+                test_data["test_process_accounts_autocomplete"]["expected"][0],
             ),
             (
                 accounts_empty,
-                accounts_data["test_process_accounts_autocomplete"]["expected"][1],
+                test_data["test_process_accounts_autocomplete"]["expected"][1],
             ),
             (
                 accounts_pagination,
-                accounts_data["test_process_accounts_autocomplete"]["expected"][2],
+                test_data["test_process_accounts_autocomplete"]["expected"][2],
             ),
         ],
     )
@@ -189,43 +223,43 @@ class TestAPI:
         [
             (
                 accounts_full,
-                accounts_data["test_process_accounts_full"]["all"]["expected"],
+                test_data["test_process_accounts_full"]["all"]["expected"],
             ),
             (
                 accounts_empty,
-                accounts_data["test_process_accounts_full"]["empty"]["expected"],
+                test_data["test_process_accounts_full"]["empty"]["expected"],
             ),
             (
                 accounts_pagination,
-                accounts_data["test_process_accounts_full"]["pagination"]["expected"],
+                test_data["test_process_accounts_full"]["pagination"]["expected"],
             ),
             (
-                accounts_data["test_process_accounts_full"]["asset"]["data"],
-                accounts_data["test_process_accounts_full"]["asset"]["expected"],
+                test_data["test_process_accounts_full"]["asset"]["data"],
+                test_data["test_process_accounts_full"]["asset"]["expected"],
             ),
             (
-                accounts_data["test_process_accounts_full"]["cash"]["data"],
-                accounts_data["test_process_accounts_full"]["cash"]["expected"],
+                test_data["test_process_accounts_full"]["cash"]["data"],
+                test_data["test_process_accounts_full"]["cash"]["expected"],
             ),
             (
-                accounts_data["test_process_accounts_full"]["expense"]["data"],
-                accounts_data["test_process_accounts_full"]["expense"]["expected"],
+                test_data["test_process_accounts_full"]["expense"]["data"],
+                test_data["test_process_accounts_full"]["expense"]["expected"],
             ),
             (
-                accounts_data["test_process_accounts_full"]["revenue"]["data"],
-                accounts_data["test_process_accounts_full"]["revenue"]["expected"],
+                test_data["test_process_accounts_full"]["revenue"]["data"],
+                test_data["test_process_accounts_full"]["revenue"]["expected"],
             ),
             (
-                accounts_data["test_process_accounts_full"]["special"]["data"],
-                accounts_data["test_process_accounts_full"]["special"]["expected"],
+                test_data["test_process_accounts_full"]["special"]["data"],
+                test_data["test_process_accounts_full"]["special"]["expected"],
             ),
             (
-                accounts_data["test_process_accounts_full"]["hidden"]["data"],
-                accounts_data["test_process_accounts_full"]["hidden"]["expected"],
+                test_data["test_process_accounts_full"]["hidden"]["data"],
+                test_data["test_process_accounts_full"]["hidden"]["expected"],
             ),
             (
-                accounts_data["test_process_accounts_full"]["liability"]["data"],
-                accounts_data["test_process_accounts_full"]["liability"]["expected"],
+                test_data["test_process_accounts_full"]["liability"]["data"],
+                test_data["test_process_accounts_full"]["liability"]["expected"],
             ),
         ],
     )
@@ -246,3 +280,32 @@ class TestAPI:
         assert FireflyAPI.count_total_page_elements(self.accounts_empty) == 0
         assert FireflyAPI.count_total_page_elements(self.accounts_full) == 43
         assert FireflyAPI.count_total_page_elements(self.accounts_pagination) == 86
+
+    def test_flush_cache(self, api):
+        endpoint = "about/user"
+        api.rc.get_adapter("https://").register_uri(
+            "GET",
+            f"{api.api_url}{endpoint}",
+            headers={"Content-Type": "application/json"},
+            json=self.about_user,
+            status_code=200,
+        )
+
+        # Perform a query to cache results
+        req1 = api._get(endpoint=endpoint, cache=True, request_raw=True)
+        assert not req1.from_cache
+
+        # Second request should use cached results
+        req2 = api._get(endpoint=endpoint, cache=True, request_raw=True)
+        assert req2.from_cache and req1.cache_key == req2.cache_key
+
+        # Refresh API
+        api.rc.cache.clear()
+        assert len(list(api.rc.cache.keys())) == 0
+
+        # Third request should not see any cached results
+        req3 = api._get(endpoint=endpoint, cache=True, request_raw=True)
+        assert not req3.from_cache and req3.cache_key in (
+            req1.cache_key,
+            req2.cache_key,
+        )

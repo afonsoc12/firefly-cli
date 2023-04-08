@@ -1,6 +1,6 @@
 ARG DOCKER_IMAGE=python:3.9-alpine \
-    USER=nonroot \
-    GROUP=nonroot \
+    USER=coolio \
+    GROUP=coolio \
     UID=1234 \
     GID=4321
 
@@ -38,7 +38,7 @@ RUN mkdir -p /home $XDG_CONFIG_HOME \
     && chown -R $USER:$GROUP /home $XDG_CONFIG_HOME \
     && rm -rf /tmp/* /var/{cache,log}/* /var/lib/apt/lists/*
 
-USER nonroot
+USER $USER
 WORKDIR /home
 
 COPY --from=install-image --chown=$USER:$GROUP /root/.local /home/.local
