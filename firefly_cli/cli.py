@@ -113,7 +113,7 @@ limitations under the License.
 
     def help_edit(self):
         self.poutput(
-            "Edits connection credentials:\n\t> edit url http://<FireflyIII URL>:<Port>\n\t> edit api <API key>"
+            "Edits connection credentials:\n\t> edit url https://<FireflyIII URL>:<Port>\n\t> edit api <API key>"
         )
 
     @cmd2.with_argparser(Parser.accounts())
@@ -149,9 +149,11 @@ limitations under the License.
 
         tab_header, tab_body = trans.get_tabulates()
         self.poutput(f"Transaction header:\n{tab_header}\n")
-        self.poutput(f"Transaction Body:\n{tab_body}\n")
+        self.poutput(f"Transaction body:\n{tab_body}\n")
 
-        if prompt_continue(extra_line=False, extra_msg=" adding the transaction"):
+        if parser.bypass_prompt or prompt_continue(
+            extra_line=False, extra_msg=" adding the transaction"
+        ):
             try:
                 response = self.api.create_transaction(trans)
 
@@ -176,12 +178,11 @@ limitations under the License.
         return True
 
     def help_exit(self):
-        return self.poutput("exit the application. Shorthand: x q Ctrl-D.")
+        return self.poutput("Exits the application. Shorthand: q Ctrl-D.")
 
     def default(self):
-        self.poutput(
-            'Input not recognised. Please type "help" to list the available commands'
-        )
+        # todo default when arg not recognised
+        pass
 
     do_q = do_exit
     help_q = help_exit

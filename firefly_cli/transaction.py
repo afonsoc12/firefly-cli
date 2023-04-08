@@ -77,6 +77,10 @@ class Transaction:
 
         d = self.__dict__
 
+        # Remove argparse arguments not related to transaction
+        if "bypass_prompt" in d:
+            del d["bypass_prompt"]
+
         if remove_none:
             d = {k: v for k, v in d.items() if v is not None}
 

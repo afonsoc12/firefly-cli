@@ -26,15 +26,7 @@ class FireflyAPI:
             else hostname[:-1]
         )  # Remove trailing backslash
         self.api_url = self.hostname + "/api/v1/" if hostname else self.hostname
-        self.api_test = self._test_api() if check_connection else False
-
-    def _test_api(self):
-        """Tests API connection."""
-        try:
-            _ = self.get_about_user()
-            return True
-        except:
-            return False
+        self.api_test = self.test_api_connection() if check_connection else False
 
     def _post(self, endpoint, payload):
         """Handles general POST requests."""
@@ -51,7 +43,7 @@ class FireflyAPI:
 
         return response
 
-    def _get(self, endpoint, params={}, cache=False):
+    def _get(self, endpoint, params={}, cache=False, request_raw=False, timeout=2):
         """Handles general GET requests."""
 
         with self.rc.cache_disabled() if not cache else nullcontext():
@@ -59,14 +51,23 @@ class FireflyAPI:
                 "{}{}".format(self.api_url, endpoint),
                 params=params,
                 headers=self.headers,
+                timeout=timeout,
             )
 
-        return response.json()
+        return response.json() if not request_raw else response
 
-    def get_budgets(self):
-        """Returns budgets of the user."""
+    def test_api_connection(self):
+        """Tests API connection."""
+        try:
+            _ = self.get_about_user()
+            return True
+        except:
+            return False
 
-        return self._get("budgets")
+    def get_about_user(self):
+        """Returns user information."""
+
+        return self._get("about/user")
 
     def get_accounts(
         self, account_type="asset", cache=False, pagination=False, limit=None
@@ -96,6 +97,11 @@ class FireflyAPI:
 
         return pages
 
+    def get_budgets(self):
+        """Returns budgets of the user."""
+
+        return self._get("budgets")
+
     def get_autocomplete_accounts(self, limit=20):
         """Returns all user accounts."""
         acc_data = self.get_accounts(
@@ -107,15 +113,8 @@ class FireflyAPI:
 
         return account_names
 
-    def get_about_user(self):
-        """Returns user information."""
-
-        return self._get("about/user")
-
     def create_transaction(self, transaction: Transaction):
         """Creates a new transaction.
-        data:
-            pd.DataFrame
 
         `Amount, Description, Source account, Destination account, Category, Budget`
         Example:
@@ -127,18 +126,23 @@ class FireflyAPI:
                 -> `5, Large Mocha, Cash, , , UCO Bank`
         """
 
-        trans_data = transaction.to_dict(remove_none=True, api_safe=True)
+        payload = self.payload_formatter(transaction)
 
-        header = {k: v for k, v in trans_data.items() if k.startswith("header__")}
+        return self._post(endpoint="transactions", payload=payload)
+
+    def payload_formatter(self, transaction):
+        trans_data = transaction.to_dict(remove_none=True, api_safe=True)
+        header = {
+            k.replace("header__", ""): v
+            for k, v in trans_data.items()
+            if k.startswith("header__")
+        }
         body = {
             "transactions": [
                 {k: v for k, v in trans_data.items() if not k.startswith("header__")}
             ]
         }
-
-        payload = {**header, **body}
-
-        return self._post(endpoint="transactions", payload=payload)
+        return {**header, **body}
 
     @staticmethod
     def refresh_api(configs):

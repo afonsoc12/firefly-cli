@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.2.1 (2023-04-08)
+
+### New
+- Autocomplete is now supported when adding transactions
+
+### Changed
+- Docker image runs with non-root user
+
+### Fixes
+- [#14] Wrong space-parsing when using oneline
+
 ## v0.1.2 (2022-02-28)
 
 ### New

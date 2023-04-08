@@ -1,15 +1,15 @@
-import json
+import test.utils as test
 from datetime import datetime
-from pathlib import Path
 
 import pytest
 
 from firefly_cli import utils
 
-test_data = Path(__file__).parent.joinpath("test_data")
-
 
 class TestUtils:
+
+    test_data = test.load_test_data(__name__, "test_data.json")
+
     @pytest.mark.parametrize(
         "ans, expected",
         [
@@ -89,22 +89,11 @@ class TestUtils:
         )
 
     def test_tabulate(self):
+        input = self.test_data["test_tabulate"]["data"]
+        output = self.test_data["test_tabulate"]["expected"]
 
-        with open(test_data / "utils" / "tabulate.json", "r") as f:
-            tabulate_expected = json.load(f)
-
-        data = {
-            "column_a": [1, 2, 3],
-            "column_B": [4, 5, 6],
-            "Column_c": [7, 8, 9],
-            "Column D": [10, 11, 12],
-        }
-
-        assert utils.tabulate(data) == tabulate_expected[0]
-        assert (
-            utils.tabulate(data, header_fmt="capitalise_from_snake")
-            == tabulate_expected[1]
-        )
+        assert utils.tabulate(input) == output[0]
+        assert utils.tabulate(input, header_fmt="capitalise_from_snake") == output[1]
 
     @pytest.mark.parametrize(
         "s, expected, expected_capitalise",

@@ -29,11 +29,12 @@ class Autocomplete:
 
 class Parser:
     @staticmethod
-    def entrypoint():
+    def entrypoint(prog=None):
         parser = ArgumentParser(
             description="A command line interface for conveniently entering expenses in Firefly III.\nRun without arguments to start interactive mode.",
             usage="firefly-cli [-h] [-v]",
             add_help=False,
+            prog=None,
         )
 
         # Optional arguments (json header)
@@ -50,10 +51,8 @@ class Parser:
         return parser
 
     @staticmethod
-    def accounts():
-        parser = Cmd2ArgumentParser(
-            description="Shows account information.",
-        )
+    def accounts(prog=None):
+        parser = Cmd2ArgumentParser(description="Shows account information.", prog=prog)
 
         # Optional arguments (json header)
         parser.add_argument("--json", action="store_true")
@@ -79,17 +78,28 @@ class Parser:
         return parser
 
     @staticmethod
-    def add():
+    def add(prog=None):
 
         parser = Cmd2ArgumentParser(
             description="Adds a new transaction to FireflyIII.",
             usage="add [comma-separated arguments] [-h] [--optional-arguments]",
+            prog=None,
         )
 
         # Positional arguments
-        parser.add_argument("transaction", nargs="*", help="Transaction data.")
+        parser.add_argument(
+            "transaction",
+            nargs="*",
+            help="Transaction data in comma-separated format: Amount, Description , Source account, Destination account, Category, Budget",
+        )
 
         # Optional arguments (json header)
+        parser.add_argument(
+            "-y",
+            dest="bypass_prompt",
+            action="store_true",
+            help="Bypass confirmation prompt.",
+        )
         parser.add_argument(
             "--apply-rules",
             default=True,
@@ -174,3 +184,8 @@ class Parser:
         )
 
         return parser
+
+    @staticmethod
+    def safe_string(args):
+        args_str = " ".join(list(map(lambda x: f"'{x}'" if " " in x else x, args)))
+        return args_str
