@@ -118,7 +118,7 @@ limitations under the License.
 
     @cmd2.with_argparser(Parser.accounts())
     def do_accounts(self, parser):
-        accounts = self.api.get_accounts(limit=parser.limit)
+        accounts = self.api.get_accounts(limit=parser.limit, account_type=parser.type)
         if parser.json:
             self.poutput(json.dumps(accounts, sort_keys=True, indent=4))
         else:
