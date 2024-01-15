@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## v0.2.2 (2024-01-15)
+
+### Fixes
+- [#17] edit command is now case insensitive (thanks @chevdor)
+
 ## v0.2.1 (2023-04-08)
 
 ### New
