@@ -104,7 +104,7 @@ limitations under the License.
                 f"The command 'edit' takes exactly two arguments. Provided: {' '.join(argslist)}"
             )
         else:
-            if argslist[0] == "url" or argslist[0] == "api_token":
+            if argslist[0].casefold() == "url" or argslist[0].casefold() == "api_token":
                 self.configs["firefly-cli"][argslist[0]] = argslist[1]
                 save_configs_to_file(self.configs)
                 self.api = FireflyAPI.refresh_api(self.configs)
